@@ -54,18 +54,18 @@ class CfgIo(object):
                 tau = config.getfloat('layer' + str(i), 'tau')
                 RQ = config.getfloat('layer' + str(i), 'RQ')
                 layers.append(pytlwall.Layer(layer_type=layer_type,
-                                           thick_m=thick_m,
-                                           muinf_Hz=muinf_Hz,
-                                           epsr=epsr,
-                                           sigmaDC=sigmaDC,
-                                           k_Hz=k_Hz,
-                                           tau=tau,
-                                           RQ=RQ,
-                                           boundary=False))
+                                             thick_m=thick_m,
+                                             muinf_Hz=muinf_Hz,
+                                             epsr=epsr,
+                                             sigmaDC=sigmaDC,
+                                             k_Hz=k_Hz,
+                                             tau=tau,
+                                             RQ=RQ,
+                                             boundary=False))
             else:
                 layers.append(pytlwall.Layer(layer_type=layer_type,
-                                           thick_m=thick_m,
-                                           boundary=False))
+                                             thick_m=thick_m,
+                                             boundary=False))
 
         layer_type = config.get('boundary', 'type')
         if layer_type == 'CW':
@@ -76,23 +76,23 @@ class CfgIo(object):
             tau = config.getfloat('boundary', 'tau')
             RQ = config.getfloat('boundary', 'RQ')
         layers.append(pytlwall.Layer(layer_type=layer_type,
-                                   thick_m=thick_m,
-                                   muinf_Hz=muinf_Hz,
-                                   epsr=epsr,
-                                   sigmaDC=sigmaDC,
-                                   k_Hz=k_Hz,
-                                   tau=tau,
-                                   RQ=RQ,
-                                   boundary=True))
+                                     thick_m=thick_m,
+                                     muinf_Hz=muinf_Hz,
+                                     epsr=epsr,
+                                     sigmaDC=sigmaDC,
+                                     k_Hz=k_Hz,
+                                     tau=tau,
+                                     RQ=RQ,
+                                     boundary=True))
         chamber = pytlwall.Chamber(pipe_len_m=pipe_len_m,
-                                 pipe_rad_m=pipe_rad_m,
-                                 pipe_hor_m=pipe_hor_m,
-                                 pipe_ver_m=pipe_ver_m,
-                                 chamber_shape=chamber_shape,
-                                 betax=betax,
-                                 betay=betay,
-                                 layers=layers,
-                                 component_name=component_name)
+                                   pipe_rad_m=pipe_rad_m,
+                                   pipe_hor_m=pipe_hor_m,
+                                   pipe_ver_m=pipe_ver_m,
+                                   chamber_shape=chamber_shape,
+                                   betax=betax,
+                                   betay=betay,
+                                   layers=layers,
+                                   component_name=component_name)
         return chamber
 
     def read_freq(self, cfg_file=None):
@@ -117,44 +117,44 @@ class CfgIo(object):
             if config.has_option('beam_info', 'mass_MeV_c2'):
                 mass_MeV_c2 = config.getfloat('beam_info', 'mass_MeV_c2')
                 beam = pytlwall.Beam(betarel=betarel,
-                                   test_beam_shift=test_beam_shift,
-                                   mass_MeV_c2=mass_MeV_c2)
+                                     test_beam_shift=test_beam_shift,
+                                     mass_MeV_c2=mass_MeV_c2)
             else:
                 beam = pytlwall.Beam(betarel=betarel,
-                                   test_beam_shift=test_beam_shift)
+                                     test_beam_shift=test_beam_shift)
             return beam
         if config.has_option('beam_info', 'gammarel'):
             gammarel = config.getfloat('beam_info', 'gammarel')
             if config.has_option('beam_info', 'mass_MeV_c2'):
                 mass_MeV_c2 = config.getfloat('beam_info', 'mass_MeV_c2')
                 beam = pytlwall.Beam(gammarel=gammarel,
-                                   test_beam_shift=test_beam_shift,
-                                   mass_MeV_c2=mass_MeV_c2)
+                                     test_beam_shift=test_beam_shift,
+                                     mass_MeV_c2=mass_MeV_c2)
             else:
                 beam = pytlwall.Beam(gammarel=gammarel,
-                                   test_beam_shift=test_beam_shift)
+                                     test_beam_shift=test_beam_shift)
             return beam
         if config.has_option('beam_info', 'Ekin_MeV'):
             Ekin_MeV = config.getfloat('beam_info', 'Ekin_MeV')
             if config.has_option('beam_info', 'mass_MeV_c2'):
                 mass_MeV_c2 = config.getfloat('beam_info', 'mass_MeV_c2')
                 beam = pytlwall.Beam(Ekin_MeV=Ekin_MeV,
-                                   test_beam_shift=test_beam_shift,
-                                   mass_MeV_c2=mass_MeV_c2)
+                                     test_beam_shift=test_beam_shift,
+                                     mass_MeV_c2=mass_MeV_c2)
             else:
                 beam = pytlwall.Beam(Ekin_MeV=Ekin_MeV,
-                                   test_beam_shift=test_beam_shift)
+                                     test_beam_shift=test_beam_shift)
             return beam
         if config.has_option('beam_info', 'p_MeV_c'):
             p_MeV_c = config.getfloat('beam_info', 'p_MeV_c')
             if config.has_option('beam_info', 'mass_MeV_c2'):
                 mass_MeV_c2 = config.getfloat('beam_info', 'mass_MeV_c2')
                 beam = pytlwall.Beam(p_MeV_c=p_MeV_c,
-                                   test_beam_shift=test_beam_shift,
-                                   mass_MeV_c2=mass_MeV_c2)
+                                     test_beam_shift=test_beam_shift,
+                                     mass_MeV_c2=mass_MeV_c2)
             else:
                 beam = pytlwall.Beam(p_MeV_c=p_MeV_c,
-                                   test_beam_shift=test_beam_shift)
+                                     test_beam_shift=test_beam_shift)
             return beam
 
     def read_pytlwall(self, cfg_file=None):

@@ -3,12 +3,24 @@ import pytlwall
 
 
 class TestPlot(unittest.TestCase):
-    def test_longitudinal_output(self):
-        print('\nTesting longitudinal simple plot, scale log')
-        read_cfg = pytlwall.CfgIo('input/one_layer.cfg')
+    def test_onelayer_circ(self):
+        print('\nTesting one layer circular relativ')
+        read_cfg = pytlwall.CfgIo('input/test001.cfg')
+        # plot all save all
         mywall = read_cfg.read_pytlwall()
         mywall.calc_ZLong()
-        savedir = 'output/one_layer/img/'
+        mywall.calc_ZTrans()
+        savedir = 'output/test001/'
+        my_output = pytlwall.TxtIo()
+        savename = 'ZLong.txt'
+        label = 'Longitudinal'
+        my_output.save_ZLong(savedir, savename, mywall.f, mywall.ZLong,
+                             label)
+        savename = 'ZTrans.txt'
+        label = 'Transversal'
+        my_output.save_ZTrans(savedir, savename, mywall.f, mywall.ZTrans,
+                              label)
+        savedir = 'output/test001/img/'
         savename = 'ZLong.png'
         imped_type = "L"
         title = 'Longitudinal impedance'
@@ -16,17 +28,11 @@ class TestPlot(unittest.TestCase):
         my_plot.plot_Z_vs_f_simple(mywall.f, mywall.ZLong,  imped_type, title,
                                    savedir, savename,
                                    xscale='log', yscale='log')
-
-    def test_transverse_output(self):
-        print('\nTesting transverse  plot, scale log, symlog')
-        read_cfg = pytlwall.CfgIo('input/one_layer.cfg')
-        mywall = read_cfg.read_pytlwall()
-        mywall.calc_ZTrans()
-        savedir = 'output/one_layer/img/'
         savename = 'ZTransReal.png'
         imped_type = "T"
-        my_plot = pytlwall.PlotUtil()
         list_f = [mywall.f, mywall.f, mywall.f, mywall.f]
+        print(mywall.chamber.yokoya_q)
+        print(mywall.chamber.detx_yokoya_factor)
         list_Z = [mywall.ZDipX.real, mywall.ZDipY.real, mywall.ZQuadX.real,
                   mywall.ZQuadY.real]
         title = 'Transverse impedance Real'

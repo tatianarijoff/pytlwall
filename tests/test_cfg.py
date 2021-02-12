@@ -1,6 +1,4 @@
 import unittest
-import numpy as np
-from matplotlib import pyplot as plt
 import pytlwall
 
 
@@ -33,6 +31,7 @@ class TestCfgIo(unittest.TestCase):
         mywall = read_cfg.read_pytlwall()
         self.assertEqual(0.01, mywall.beam.test_beam_shift)
         self.assertEqual(1.e5, round(mywall.beam.gammarel, 3))
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -9,13 +9,13 @@ import pytlwall
 
 
 class TxtIo(object):
-    def save_ZLong(self, filedir, filename, f, ZLong, out_label):
-        print('Saving %s data in %s' % (out_label, filename))
+    def save_ZLong(self, savedir, savename, f, ZLong, out_label):
+        print('Saving %s data in %s' % (out_label, savename))
         try:
-            fd = open(filedir + filename, 'w')
+            fd = open(savedir + savename, 'w')
         except IOError:
             os.makedirs(savedir)
-            fd = open(filedir + filename, 'w')
+            fd = open(savedir + savename, 'w')
         fd.write('{0:^20s} {1:^20s} {2:^20s}\n'.format('f', 'ZLong.real',
                                                        'ZLong.imaginary'))
         fd.write('{0:^20s} {1:^20s} {2:^20s}\n'.format('[Hz]', '[Ohm]',
@@ -25,13 +25,13 @@ class TxtIo(object):
                                                         ZLong[i].imag))
         fd.close()
 
-    def save_ZTrans(self, filedir, filename, f, ZTrans, out_label):
-        print('Saving %s data in %s' % (out_label, filename))
+    def save_ZTrans(self, savedir, savename, f, ZTrans, out_label):
+        print('Saving %s data in %s' % (out_label, savename))
         try:
-            fd = open(filedir + filename, 'w')
+            fd = open(savedir + savename, 'w')
         except IOError:
             os.makedirs(savedir)
-            fd = open(filedir + filename, 'w')
+            fd = open(savedir + savename, 'w')
         fd.write('{0:^20s} {1:^20s} {2:^20s}\n'.format('f', 'ZTrans.real',
                                                        'ZTrans.imaginary'))
         fd.write('{0:^20s} {1:^20s} {2:^20s}\n'.format('[Hz]', '[Ohm/m]',
@@ -41,14 +41,14 @@ class TxtIo(object):
                                                         ZTrans[i].imag))
         fd.close()
 
-    def save_ZAllTrans(self, filedir, filename, f, ZDipX, ZDipY, ZQuadX,
+    def save_ZAllTrans(self, savedir, savename, f, ZDipX, ZDipY, ZQuadX,
                        ZQuadY, out_label):
-        print('Saving %s data in %s' % (out_label, filename))
+        print('Saving %s data in %s' % (out_label, savename))
         try:
-            fd = open(filedir + filename, 'w')
+            fd = open(savedir + savename, 'w')
         except IOError:
             os.makedirs(savedir)
-            fd = open(filedir + filename, 'w')
+            fd = open(savedir + savename, 'w')
         fd.write('{0:^20s} {1:^20s} {2:^20s} {3:^20s} {4:^20s} '
                  '{5:^20s} {6:^20s} {7:^20s} {8:^20s} \n'
                  .format('f', 'ZDipX.real', 'ZDipX.imaginary', 'ZDipY.real',
@@ -67,14 +67,14 @@ class TxtIo(object):
                              ZQuadY[i].real, ZQuadY[i].imag))
         fd.close()
 
-    def save_Zgeneric(self, filedir, filename, f, list_Z, list_label,
+    def save_Zgeneric(self, savedir, savename, f, list_Z, list_label,
                       list_unit, out_label):
-        print('Saving %s data in %s' % (out_label, filename))
+        print('Saving %s data in %s' % (out_label, savename))
         try:
-            fd = open(filedir + filename, 'w')
+            fd = open(savedir + savename, 'w')
         except IOError:
             os.makedirs(savedir)
-            fd = open(filedir + filename, 'w')
+            fd = open(savedir + savename, 'w')
         fd.write('{0:^20s}'.format(f))
         for i in range(len(list_label)):
             fd.write('{0:^20s}'.format(list_label[i]))

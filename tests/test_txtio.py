@@ -1,6 +1,4 @@
 import unittest
-import numpy as np
-from matplotlib import pyplot as plt
 import pytlwall
 
 
@@ -9,6 +7,7 @@ class TestTxtIo(unittest.TestCase):
         print('\nTesting longitudinal output, text')
         read_cfg = pytlwall.CfgIo('input/one_layer.cfg')
         mywall = read_cfg.read_pytlwall()
+        mywall.calc_ZLong()
         filedir = 'output/'
         filename = 'one_layerZLong.txt'
         label = "longitudinal impedance"
@@ -19,6 +18,7 @@ class TestTxtIo(unittest.TestCase):
         print('\nTesting transverse output, text')
         read_cfg = pytlwall.CfgIo('input/one_layer.cfg')
         mywall = read_cfg.read_pytlwall()
+        mywall.calc_ZTrans()
         filedir = 'output/'
         filename = 'one_layerZTrans.txt'
         label = "transverse impedance"
@@ -28,10 +28,11 @@ class TestTxtIo(unittest.TestCase):
 
     def test_all_transverse_output(self):
         print('\nTesting all the transverse output, text')
-        read_cfg = pytlwall.CfgIo('input/one_layer.cfg')
+        read_cfg = pytlwall.CfgIo('input/test001.cfg')
         mywall = read_cfg.read_pytlwall()
+        mywall.calc_ZTrans()
         filedir = 'output/'
-        filename = 'one_layerZAllTrans.txt'
+        filename = 'test001ZAllTrans.txt'
         label = "transverse impedance"
         my_output = pytlwall.TxtIo()
         my_output.save_ZAllTrans(filedir, filename, mywall.f, mywall.ZDipX,

@@ -44,6 +44,7 @@ class Layer(object):
         self._freq_Hz = np.array([])
 
         self.layer_type = layer_type
+        self.freq_Hz = freq_Hz
         self.thick_m = thick_m
         self._muinf_Hz = muinf_Hz
         self.epsr = epsr
@@ -51,7 +52,6 @@ class Layer(object):
         self.k_Hz = k_Hz
         self.tau = tau
         self.RQ = RQ
-        self.freq_Hz = freq_Hz
 
     @property
     def layer_type(self):

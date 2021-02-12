@@ -111,12 +111,13 @@ class PlotUtil(object):
         if title is not None:
             plt.title(title, fontsize=24)
         for i in range(len(list_label)):
-            width = 6 - 2 * i
+            width = len(list_f) * 3 - 2 * i
+            print(i, list_label[i], min(list_f[i]), max(list_f[i]))
             ax.plot(list_f[i], list_Z[i], linewidth=width,
                     label=list_label[i])
         ax.set_ylabel('Z [' + Z_unit + ']', fontsize=20)
         ax.set_xlabel('f [Hz]', fontsize=20)
-        plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
+        # ~ plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
         if xscale == 'log':
             plt.xscale('log')
         if xscale == 'symlog':
@@ -136,5 +137,4 @@ class PlotUtil(object):
             except IOError:
                 os.makedirs(savedir)
                 plt.savefig(savedir + savename)
-        plt.show()
         return fig

@@ -5,6 +5,17 @@
 @copyright CERN
 '''
 import numpy as np
+from .yokoya_factors.yokoya_q_factor import yoko_q
+from .yokoya_factors.ellipt_long import ellipt_long
+from .yokoya_factors.ellipt_drivx import ellipt_drivx
+from .yokoya_factors.ellipt_drivy import ellipt_drivy
+from .yokoya_factors.ellipt_detx import ellipt_detx
+from .yokoya_factors.ellipt_dety import ellipt_dety
+from .yokoya_factors.rect_long import rect_long
+from .yokoya_factors.rect_drivx import rect_drivx
+from .yokoya_factors.rect_drivy import rect_drivy
+from .yokoya_factors.rect_detx import rect_detx
+from .yokoya_factors.rect_dety import rect_dety
 
 default_pipe_len_m = 1.
 default_pipe_rad_m = 1.e-2
@@ -34,7 +45,6 @@ class Chamber(object):
         self.betay = default_betay
         self.layers = []
         self.component_name = default_component_name
-
         self.pipe_len_m = pipe_len_m
         self.pipe_rad_m = pipe_rad_m
         if (pipe_hor_m != default_pipe_hor_m):
@@ -112,38 +122,34 @@ class Chamber(object):
 
     @property
     def yokoya_q(self):
-        yokoya_q = abs(pipe_hor_m - pipe_ver_m) / (pipe_hor_m + pipe_ver_m)
+        yokoya_q = abs(self.pipe_hor_m - self.pipe_ver_m)\
+                     / (self.pipe_hor_m + self.pipe_ver_m)
         return yokoya_q
 
     @property
+    def yokoya_q_idx(self):
+        idx = (np.abs(yoko_q - self.yokoya_q)).argmin()
+        return idx
+
+    @property
     def long_yokoya_factor(self):
-        # to do
-        long_yoko = 1.
-        return long_yoko
+        return self.long_yoko_list[self.yokoya_q_idx]
 
     @property
     def drivx_yokoya_factor(self):
-        # to do
-        drivx_yoko = 1.
-        return drivx_yoko
+        return self.drivx_yoko_list[self.yokoya_q_idx]
 
     @property
     def drivy_yokoya_factor(self):
-        # to do
-        drivy_yoko = 1.
-        return drivy_yoko
+        return self.drivy_yoko_list[self.yokoya_q_idx]
 
     @property
     def detx_yokoya_factor(self):
-        # to do
-        detx_yoko = 0.
-        return detx_yoko
+        return self.detx_yoko_list[self.yokoya_q_idx]
 
     @property
     def dety_yokoya_factor(self):
-        # to do
-        dety_yoko = 0.
-        return dety_yoko
+        return self.dety_yoko_list[self.yokoya_q_idx]
 
     @property
     def betax(self):
@@ -181,15 +187,30 @@ class Chamber(object):
 
     @chamber_shape.setter
     def chamber_shape(self, tmpchamber_shape):
-        if (tmpchamber_shape.upper() == 'ELLIPTICAL' or
-                tmpchamber_shape.upper() == 'RECTANGULAR' or
-                tmpchamber_shape.upper() == 'CIRCULAR'):
+        if (tmpchamber_shape.upper() == 'ELLIPTICAL'):
             self._chamber_shape = tmpchamber_shape
-            # TO DO
-            # READ THE FILE FOR THE SHAPE
+            self.long_yoko_list = ellipt_long
+            self.drivx_yoko_list = ellipt_drivx
+            self.drivy_yoko_list = ellipt_drivy
+            self.detx_yoko_list = ellipt_detx
+            self.dety_yoko_list = ellipt_dety
+        elif (tmpchamber_shape.upper() == 'RECTANGULAR'):
+            self._chamber_shape = tmpchamber_shape
+            self.long_yoko_list = rect_long
+            self.drivx_yoko_list = rect_drivx
+            self.drivy_yoko_list = rect_drivy
+            self.detx_yoko_list = rect_detx
+            self.dety_yoko_list = rect_dety
+        elif (tmpchamber_shape.upper() == 'CIRCULAR'):
+            self._chamber_shape = tmpchamber_shape
+            self.long_yoko_list = np.ones(len(yoko_q))
+            self.drivx_yoko_list = np.ones(len(yoko_q))
+            self.drivy_yoko_list = np.ones(len(yoko_q))
+            self.detx_yoko_list = np.zeros(len(yoko_q))
+            self.dety_yoko_list = np.zeros(len(yoko_q))
         else:
             print("%s is not a good value for the chamber shape "
-                  "the value is not modified" % (newbetay))
+                  "the value is not modified" % (tmpchamber_shape))
         return
 
     @property
@@ -199,15 +220,4 @@ class Chamber(object):
     @component_name.setter
     def component_name(self, newname):
         self._component_name = newname
-        return
-
-    def calc_form_factor(self):
-        x_coord = abs(self.pipe_hor_m - self.pipe_ver_m)\
-                  / (self.pipe_hor_m - self.pipe_ver_m)
-        # TO DO
-        self.form_factor_longit = 1
-        self.form_factor_drivx = 1
-        self.form_factor_drivy = 1
-        self.form_factor_detx = 1
-        self.form_factor_dety = 1
         return
