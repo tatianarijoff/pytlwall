@@ -45,30 +45,6 @@ that contains the source code, the required code and information for the install
  - This **documentation** is contained in the file "README.md"
  - The **installation process** is defined by the files ["pyproject.toml"](#pyprojecttoml), ["MANIFEST.in"](#manifestin), and  ["setup.py"](#setuppy), which will be described in more detail in the following section.
  
-## Installation code
-
-The build and installation process is performed by the pip pacakge installer based on the following files:
-
-### pyproject.toml
-
-The file "pyproject.toml" defines the backend used of the build, which in our case is [setuptools](https://pypi.org/project/setuptools/), and the dependencies that are required to build the package. 
-
-
-### MANIFEST.in
-
-The file "MANIFEST.in" defines the additional files that need to be copied together with the installed package, together with those that are strictly required for the package to work. In our case we include, "pyproject.toml", this readme file and the license information.
-
-```python
-include pyproject.toml
-
-# Include the README
-include *.md
-
-# Include the license file
-include LICENSE.txt
-```
-
-### setup.py
 
 
 ## References
