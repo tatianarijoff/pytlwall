@@ -1,4 +1,3 @@
-import unittest
 import pytlwall
 import pandas as pd
 
