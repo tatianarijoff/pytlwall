@@ -31,8 +31,6 @@ class TestPlot(unittest.TestCase):
         savename = 'ZTransReal.png'
         imped_type = "T"
         list_f = [mywall.f, mywall.f, mywall.f, mywall.f]
-        print(mywall.chamber.yokoya_q)
-        print(mywall.chamber.detx_yokoya_factor)
         list_Z = [mywall.ZDipX.real, mywall.ZDipY.real, mywall.ZQuadX.real,
                   mywall.ZQuadY.real]
         title = 'Transverse impedance Real'

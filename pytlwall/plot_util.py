@@ -112,7 +112,6 @@ class PlotUtil(object):
             plt.title(title, fontsize=24)
         for i in range(len(list_label)):
             width = len(list_f) * 3 - 2 * i
-            print(i, list_label[i], min(list_f[i]), max(list_f[i]))
             ax.plot(list_f[i], list_Z[i], linewidth=width,
                     label=list_label[i])
         ax.set_ylabel('Z [' + Z_unit + ']', fontsize=20)

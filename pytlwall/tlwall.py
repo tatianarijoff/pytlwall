@@ -113,7 +113,7 @@ class TlWall(object):
         reduct_factor = iv(0, 2 * const.pi * self.f
                            * self.chamber.pipe_rad_m
                            / (self.beam.betarel * const.c
-                              * self.beam.gammarel))
+                              * self.beam.gammarel))**2
         return reduct_factor
 
     def calc_corr_imp_long_factor(self, KZeff):
