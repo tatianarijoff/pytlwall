@@ -39,6 +39,7 @@ assuming that the package has been downloaded in the current folder.
 ```pytlwall``` has the structure used for standard python packages. It consists in a folder named after the package "pytlwall" (which is also the top level of the git repository) 
 that contains the source code, the required code and information for the installation, documentation, unit tests and usage examples. In particular:
  - The **source code** is contained in a subfolder that also has the same name of the python package (pytlwall).
+    -- plot_util has been made for basic plot tests, it is available for your needs but it does not pretend to be a complete plot interface, we suggest you will develop your own plot way ;) 
  - **Unit tests** is contained in the folder "tests" 
  - **Examples** illustrating the package usage are hosted in the folder "examples"
  - **License** information is contained in the file "LICENSE.txt"
