@@ -83,8 +83,8 @@ class Beam(object):
 
         self._gammarel = tmp_gamma
         self._betarel = np.sqrt(1 - (1/(self._gammarel*self._gammarel)))
-        self._p_MeV_c = (self._gammarel * self._m_MeV_c2
-                         * self._betarel)
+        self._p_MeV_c = (self._gammarel * self._m_MeV_c2 *
+                         self._betarel)
         self._Ekin_MeV = self._m_MeV_c2 * (self._gammarel - 1)
 
     @property
@@ -105,8 +105,8 @@ class Beam(object):
         self._Ekin_MeV = tmp_Ekin
         self._gammarel = (self._Ekin_MeV / self._m_MeV_c2) + 1.
         self._betarel = np.sqrt(1 - (1 / (self._gammarel*self._gammarel)))
-        self._p_MeV_c = (self._gammarel * self._m_MeV_c2
-                         * self._betarel)
+        self._p_MeV_c = (self._gammarel * self._m_MeV_c2 *
+                         self._betarel)
 
     @property
     def p_MeV_c(self):

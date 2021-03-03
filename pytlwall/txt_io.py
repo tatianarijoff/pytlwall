@@ -89,7 +89,7 @@ class TxtIo(object):
         fd.close()
 
     def read_frequency_txt(self, filename, separator='', column=0,
-                            skipped_rows=0, unit='Hz'):
+                           skipped_rows=0, unit='Hz'):
         freq = []
         print(filename)
         fd = open(filename, 'r')
@@ -100,11 +100,11 @@ class TxtIo(object):
         # define multiplication factor
         if unit == 'THz':
             mult = 1e12
-        elif unit =='GHz':
+        elif unit == 'GHz':
             mult = 1e9
-        elif unit =='MHz':
+        elif unit == 'MHz':
             mult = 1e6
-        elif unit =='kHz':
+        elif unit == 'kHz':
             mult = 1e3
         else:
             mult = 1
