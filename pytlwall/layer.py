@@ -261,41 +261,41 @@ class Layer(object):
 
     def calc_sigmaPM(self):
         """ sigmaPM = sqrt((2 pi  f  eps)^2 + sigma_ac^2 ) """
-        sigmaPM = np.sqrt((2 * const.pi * self.freq_Hz * self.eps)**2
-                          + self.sigmaAC**2)
+        sigmaPM = np.sqrt((2 * const.pi * self.freq_Hz * self.eps)**2 +
+                          self.sigmaAC**2)
         return sigmaPM
 
     def calc_delta(self):
         """ delta = sqrt(2 / (2  pi f  mu sigma_ac
                     + j  mu eps ( 2 pi f)^2 )) """
-        delta = np.sqrt(2 / (2 * const.pi * self.freq_Hz * self.mu
-                        * self.sigmaAC + 1.j * self.mu * self.eps
-                        * (2 * const.pi * self.freq_Hz)**2))
+        delta = np.sqrt(2 / (2 * const.pi * self.freq_Hz * self.mu *
+                        self.sigmaAC + 1.j * self.mu * self.eps *
+                        (2 * const.pi * self.freq_Hz)**2))
         return delta
 
     def calc_deltaM(self):
         """ deltaM = sqrt(2 / (2 pi f mu sigma_ac - j mu eps ( 2 pi f)^2)) """
-        deltaM = np.sqrt(2 / (2 * const.pi * self.freq_Hz * self.mu
-                         * self.sigmaAC - 1.j * self.mu * self.eps
-                         * (2 * const.pi * self.freq_Hz)**2))
+        deltaM = np.sqrt(2 / (2 * const.pi * self.freq_Hz * self.mu *
+                         self.sigmaAC - 1.j * self.mu * self.eps *
+                         (2 * const.pi * self.freq_Hz)**2))
         return deltaM
 
     def calc_RS(self):
         """ RS = sqrt(mu omega/ 2 sigmaDC)
            ( 1 + (2/pi) * arctan(0.7 * mu  omega sigmaDC RQ^2 )) """
-        RS = np.sqrt(self.mu * np.pi * self.freq_Hz / self.sigmaDC)\
-            * (1 + (2 / np.pi)
-               * np.arctan(0.7 * self.mu * 2 * np.pi * self.freq_Hz
-                           * self.sigmaDC * self.RQ**2))
+        RS = np.sqrt(self.mu * np.pi * self.freq_Hz / self.sigmaDC) * \
+            (1 + (2 / np.pi) *
+             np.arctan(0.7 * self.mu * 2 * np.pi * self.freq_Hz *
+             self.sigmaDC * self.RQ**2))
         return RS
 
     def calc_sigmaDC_R(self):
         """ sigmaDC = pi * f * mu0 / RS^2 """
-        sigmaDC = (np.ones(len(self.freq_Hz)) * self.sigmaDC
-                   + 1.j * np.ones(len(self.freq_Hz)))
+        sigmaDC = (np.ones(len(self.freq_Hz)) * self.sigmaDC +
+                   1.j * np.ones(len(self.freq_Hz)))
         self._RS = np.ones(len(self.freq_Hz)) * self.RS
         mask = self._RS != 0
 
-        sigmaDC[mask] = (np.pi * self.freq_Hz[mask]
-                         * self.mu / self._RS[mask]**2)
+        sigmaDC[mask] = (np.pi * self.freq_Hz[mask] *
+                         self.mu / self._RS[mask]**2)
         return sigmaDC

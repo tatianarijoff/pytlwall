@@ -55,7 +55,7 @@ class TestTxtIo(unittest.TestCase):
         filename = filedir + 'freq_input2.txt'
         my_input = pytlwall.TxtIo()
         freq_list = my_input.read_frequency_txt(filename, separator=',',
-                                                column=1, skipped_rows=2, 
+                                                column=1, skipped_rows=2,
                                                 unit='GHz')
         self.assertEqual(1e12, max(freq_list))
         freq = pytlwall.Frequencies(freq_list=freq_list)
