@@ -39,6 +39,28 @@ class TestTxtIo(unittest.TestCase):
                                  mywall.ZDipY, mywall.ZQuadX, mywall.ZQuadY,
                                  label)
 
+    def test_frequency_input001(self):
+        print('\nTesting frequency input')
+        filedir = 'input/'
+        filename = filedir + 'freq_input.txt'
+        my_input = pytlwall.TxtIo()
+        freq_list = my_input.read_frequency_txt(filename, skipped_rows=2)
+        freq = pytlwall.Frequencies(freq_list=freq_list)
+        self.assertEqual(1.1, min(freq.freq))
+        self.assertEqual(1e12, max(freq.freq))
+
+    def test_frequency_input002(self):
+        print('\nTesting frequency input unit GHz, comma separator')
+        filedir = 'input/'
+        filename = filedir + 'freq_input2.txt'
+        my_input = pytlwall.TxtIo()
+        freq_list = my_input.read_frequency_txt(filename, separator=',',
+                                                column=1, skipped_rows=2, 
+                                                unit='GHz')
+        self.assertEqual(1e12, max(freq_list))
+        freq = pytlwall.Frequencies(freq_list=freq_list)
+        self.assertEqual(1e12, max(freq.freq))
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -60,8 +60,8 @@ class Beam(object):
             tmp_gamma = float('inf')
         self._betarel = tmp_beta
         self._gammarel = tmp_gamma
-        self._p_MeV_c = (self._gammarel * self._m_MeV_c2
-                         * self._betarel)
+        self._p_MeV_c = (self._gammarel * self._m_MeV_c2 *
+                         self._betarel)
         self._Ekin_MeV = self._m_MeV_c2 * (self._gammarel - 1)
 
     @property

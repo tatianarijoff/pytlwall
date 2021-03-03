@@ -87,3 +87,35 @@ class TxtIo(object):
                 fd.write('{0:20e}'.format(list_Z[j][i]))
             fd.write('\n')
         fd.close()
+
+    def read_frequency_txt(self, filename, separator='', column=0,
+                            skipped_rows=0, unit='Hz'):
+        freq = []
+        print(filename)
+        fd = open(filename, 'r')
+        for i in range(skipped_rows):
+            fd.readline()
+        data = fd.readlines()
+        fd.close()
+        # define multiplication factor
+        if unit == 'THz':
+            mult = 1e12
+        elif unit =='GHz':
+            mult = 1e9
+        elif unit =='MHz':
+            mult = 1e6
+        elif unit =='kHz':
+            mult = 1e3
+        else:
+            mult = 1
+        # we need to distinguish the default separator from other possibilities
+        if separator is '':
+            for line in data:
+                row = line.split()
+                freq.append(mult * float(row[column]))
+        else:
+            for line in data:
+                row = line.split(separator)
+                freq.append(mult * float(row[column]))
+
+        return freq
