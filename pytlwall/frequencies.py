@@ -26,11 +26,14 @@ class Frequencies(object):
         self._fmax = default_fmax
         self._fstep = default_fstep
 
-        self.fmin = fmin
-        self.fmax = fmax
-        self.fstep = fstep
+        if freq_list:
+            self.freq = np.array(freq_list)
+        else:
+            self.fmin = fmin
+            self.fmax = fmax
+            self.fstep = fstep
 
-        self.freq = self.calc_freq_array(self.fmin, self.fmax, self.fstep)
+            self.freq = self.calc_freq_array(self.fmin, self.fmax, self.fstep)
 
     @property
     def fmin(self):
