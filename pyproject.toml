@@ -1,4 +1,6 @@
 [build-system]
-requires = [
-    'numpy', # required todo
-    ]
+    build-backend = 'setuptools.build_meta'
+    requires = ['setuptools >= 43.0.0',
+                'numpy',
+                # required to compile f2py extension
+                ]
