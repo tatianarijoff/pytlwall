@@ -156,9 +156,14 @@ class TlWall(object):
         else:
             kprop = self.chamber.layers[-1].kprop
             KZ = self.chamber.layers[-1].KZ
-            Scil = 1 / jv(0, 1.j * kprop * self.chamber.pipe_rad_m)
-            Scil[np.argwhere(np.isnan(Scil))] = 0
-            KZeff = KZ * (1 - Scil)
+            # ==========================================================
+            # this part could be useful for magnetic boundary, to do in the
+            # future a differentiation of this case to apply the correction
+            # ==========================================================
+            # ~ Scil = 1 / jv(0, 1.j * kprop * self.chamber.pipe_rad_m)
+            # ~ Scil[np.argwhere(np.isnan(Scil))] = 0
+            # ~ KZeff = KZ * (1 - Scil)
+            KZeff = KZ
 
         for i in range(len(self.chamber.layers)-2, -1, -1):
             if self.chamber.layers[i].layer_type.upper() == 'PEC':
