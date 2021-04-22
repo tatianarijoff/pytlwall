@@ -25,6 +25,8 @@ class PlotUtil(object):
         print(savename)
         if imped_type == 'L':
             Z_unit = r'$\Omega$'
+        elif imped_type == 'S':
+            Z_unit = r'$\Omega$ m'
         else:
             Z_unit = r'$\Omega$/m'
         fig = plt.figure()
@@ -68,6 +70,8 @@ class PlotUtil(object):
             return
         if imped_type == 'L':
             Z_unit = r'$\Omega$'
+        elif imped_type == 'S':
+            Z_unit = r'$\Omega$ m'
         else:
             Z_unit = r'$\Omega$/m'
         fig = plt.figure()
@@ -104,6 +108,8 @@ class PlotUtil(object):
                                           xscale='lin', yscale='lin'):
         if imped_type == 'L':
             Z_unit = r'$\Omega$'
+        elif imped_type == 'S':
+            Z_unit = r'$\Omega$ m'
         else:
             Z_unit = r'$\Omega$/m'
         fig = plt.figure()
