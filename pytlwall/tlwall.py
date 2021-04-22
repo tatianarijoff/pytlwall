@@ -160,7 +160,7 @@ class TlWall(object):
             # this part could be useful for magnetic boundary, to do in the
             # future a differentiation of this case to apply the correction
             # ==========================================================
-            # ~ Scil = 1 / jv(0, 1.j * kprop * self.chamber.pipe_rad_m)
+            # ~ Scil = 1 / iv(0, abs(kprop) * self.chamber.pipe_rad_m)
             # ~ Scil[np.argwhere(np.isnan(Scil))] = 0
             # ~ KZeff = KZ * (1 - Scil)
             KZeff = KZ
@@ -223,6 +223,32 @@ class TlWall(object):
             KZeffin = KZ * ((KZeffin + 1.j * KZ * tan_t_kprop) /
                             (KZ + 1.j * KZeffin * tan_t_kprop))
         return KZeffin
+
+    #
+    # Surface impedance
+    #
+    @property
+    def ZLongSurf(self):
+        try:
+            ZLongSurf = self.ZLong * 2 * const.pi * self.chamber.pipe_rad_m
+        except AttributeError:
+            self.ZLong = self.calc_ZLong()
+            ZLongSurf = self.ZLong * 2 * const.pi * self.chamber.pipe_rad_m
+
+        return ZLongSurf
+
+    @property
+    def ZTransSurf(self):
+        try:
+            ZTransSurf = (self.ZTrans * 2 * const.pi**2 * self.f *
+                          self.chamber.pipe_rad_m**3) / \
+                          (self.beam.betarel * const.c)
+        except AttributeError:
+            self.ZTrans = self.calc_ZTrans()
+            ZTransSurf = (self.ZTrans * 4 * const.pi**2 * self.f *
+                          self.chamber.pipe_rad_m**3) / \
+                         (self.beam.betarel * const.c)
+        return ZTransSurf
 
     #
     #  Space charge functions
