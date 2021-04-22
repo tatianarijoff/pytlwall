@@ -25,7 +25,7 @@ my_plot.plot_Z_vs_f_simple(mywall.f, ZLong, 'L', title,
                            xscale='log', yscale='log')
 
 savename = 'ZTrans.png'
-title = 'Transversal impedance'
+title = 'Transverse impedance'
 ZTrans = mywall.ZTrans + mywall.ZTransISC
 my_plot = pytlwall.PlotUtil()
 my_plot.plot_Z_vs_f_simple(mywall.f, ZTrans, 'T', title,
