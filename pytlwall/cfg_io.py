@@ -6,6 +6,7 @@
 @copyright CERN
 '''
 import configparser
+import re
 import pytlwall
 
 
@@ -156,6 +157,50 @@ class CfgIo(object):
                 beam = pytlwall.Beam(p_MeV_c=p_MeV_c,
                                      test_beam_shift=test_beam_shift)
             return beam
+
+    def read_output(self, cfg_file=None):
+        output_list = ['ZLong',
+                       'ZTrans',
+                       'ZDipX',
+                       'ZDipY',
+                       'ZQuadX',
+                       'ZQuadY',
+                       'ZLongSurf',
+                       'ZTransSurf',
+                       'ZLongDSC',
+                       'ZLongISC',
+                       'ZTransDSC',
+                       'ZTransISC'
+                       ]
+        self.list_output = []
+        self.file_output = {}
+        if cfg_file is not None:
+            config = self.read_cfg(cfg_file)
+        else:
+            config = self.config
+
+        for imped in output_list:
+            if (config.has_option('output', imped) and
+               config.getboolean('output', imped) is True):
+                self.list_output.append(imped)
+        i = 1
+        while config.has_section('output' + str(i)):
+            section = 'output' + str(i)
+            filename = config.get(section, 'output_name')
+            self.file_output[filename] = {}
+            self.file_output[filename]['imped'] = []
+            if (config.has_option(section, 'use_name_flag') and
+               config.getboolean(section, 'use_name_flag') is True):
+                self.file_output[filename]['prefix'] = \
+                     config.get('base_info', 'component_name')
+            else:
+                self.file_output[filename]['prefix'] = ''
+            imped_list = config.get('output'+str(i), 'output_list').split(',')
+            for imped in imped_list:
+                imped = imped.strip()
+                self.file_output[filename]['imped'].append(imped.strip())
+            i += 1
+        return
 
     def read_pytlwall(self, cfg_file=None):
         if cfg_file is not None:

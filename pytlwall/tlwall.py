@@ -39,7 +39,7 @@ class TlWall(object):
         # for corr_imp equal to infinity we need to change the results of
         # 1 / inf from nan to 0
         ZLong_corr[np.argwhere(np.isnan(ZLong_corr))] = 0
-        self.ZLong = ZLong_corr
+        self._ZLong = ZLong_corr
         return ZLong_corr
 
     def calc_ZTrans(self):
@@ -58,17 +58,33 @@ class TlWall(object):
         # for corr_imp equal to infinity we need to change the results of
         # 1 / inf from nan to 0
         ZTrans_corr[np.argwhere(np.isnan(ZTrans_corr))] = 0
-        self.ZTrans = ZTrans_corr
+        self._ZTrans = ZTrans_corr
         return ZTrans_corr
+
+    @property
+    def ZLong(self):
+        try:
+            return self._ZLong
+        except AttributeError:
+            self._ZLong = self.calc_ZLong()
+        return self._ZLong
+
+    @property
+    def ZTrans(self):
+        try:
+            return self._ZTrans
+        except AttributeError:
+            self._ZTrans = self.calc_ZTrans()
+        return self._ZTrans
 
     @property
     def ZDipX(self):
         try:
-            ZDipX = (self.ZTrans * self.chamber.drivx_yokoya_factor *
+            ZDipX = (self._ZTrans * self.chamber.drivx_yokoya_factor *
                      self.chamber.betax)
         except AttributeError:
-            self.ZTrans = self.calc_ZTrans()
-            ZDipX = (self.ZTrans * self.chamber.drivx_yokoya_factor *
+            self._ZTrans = self.calc_ZTrans()
+            ZDipX = (self._ZTrans * self.chamber.drivx_yokoya_factor *
                      self.chamber.betax)
 
         return ZDipX
@@ -76,33 +92,33 @@ class TlWall(object):
     @property
     def ZDipY(self):
         try:
-            ZDipY = (self.ZTrans * self.chamber.drivy_yokoya_factor *
+            ZDipY = (self._ZTrans * self.chamber.drivy_yokoya_factor *
                      self.chamber.betay)
         except AttributeError:
-            self.ZTrans = self.calc_ZTrans()
-            ZDipY = (self.ZTrans * self.chamber.drivy_yokoya_factor *
+            self._ZTrans = self.calc_ZTrans()
+            ZDipY = (self._ZTrans * self.chamber.drivy_yokoya_factor *
                      self.chamber.betay)
         return ZDipY
 
     @property
     def ZQuadX(self):
         try:
-            ZQuadX = (self.ZTrans * self.chamber.detx_yokoya_factor *
+            ZQuadX = (self._ZTrans * self.chamber.detx_yokoya_factor *
                       self.chamber.betax)
         except AttributeError:
-            self.ZTrans = self.calc_ZTrans()
-            ZQuadX = (self.ZTrans * self.chamber.detx_yokoya_factor *
+            self._ZTrans = self.calc_ZTrans()
+            ZQuadX = (self._ZTrans * self.chamber.detx_yokoya_factor *
                       self.chamber.betax)
         return ZQuadX
 
     @property
     def ZQuadY(self):
         try:
-            ZQuadY = (self.ZTrans * self.chamber.dety_yokoya_factor *
+            ZQuadY = (self._ZTrans * self.chamber.dety_yokoya_factor *
                       self.chamber.betay)
         except AttributeError:
-            self.ZTrans = self.calc_ZTrans()
-            ZQuadY = (self.ZTrans * self.chamber.dety_yokoya_factor *
+            self._ZTrans = self.calc_ZTrans()
+            ZQuadY = (self._ZTrans * self.chamber.dety_yokoya_factor *
                       self.chamber.betay)
         return ZQuadY
 
@@ -230,22 +246,22 @@ class TlWall(object):
     @property
     def ZLongSurf(self):
         try:
-            ZLongSurf = self.ZLong * 2 * const.pi * self.chamber.pipe_rad_m
+            ZLongSurf = self._ZLong * 2 * const.pi * self.chamber.pipe_rad_m
         except AttributeError:
-            self.ZLong = self.calc_ZLong()
-            ZLongSurf = self.ZLong * 2 * const.pi * self.chamber.pipe_rad_m
+            self._ZLong = self.calc_ZLong()
+            ZLongSurf = self._ZLong * 2 * const.pi * self.chamber.pipe_rad_m
 
         return ZLongSurf
 
     @property
     def ZTransSurf(self):
         try:
-            ZTransSurf = (self.ZTrans * 2 * const.pi**2 * self.f *
+            ZTransSurf = (self._ZTrans * 2 * const.pi**2 * self.f *
                           self.chamber.pipe_rad_m**3) / \
                           (self.beam.betarel * const.c)
         except AttributeError:
-            self.ZTrans = self.calc_ZTrans()
-            ZTransSurf = (self.ZTrans * 4 * const.pi**2 * self.f *
+            self._ZTrans = self.calc_ZTrans()
+            ZTransSurf = (self._ZTrans * 4 * const.pi**2 * self.f *
                           self.chamber.pipe_rad_m**3) / \
                          (self.beam.betarel * const.c)
         return ZTransSurf
@@ -263,7 +279,7 @@ class TlWall(object):
         BessBeamL = (i0(argbess0))**2
         BessBeamLDSC = k0(argbess0) / i0(argbess0)
         # longitudinal direct space charge
-        Zlong_DSC = - (1.j * const.pi * self.f * self.chamber.pipe_len_m *
+        ZLong_DSC = - (1.j * const.pi * self.f * self.chamber.pipe_len_m *
                        BessBeamL * BessBeamLDSC /
                        (const.epsilon_0 * const.pi *
                         (self.beam.gammarel * self.beam.betarel *

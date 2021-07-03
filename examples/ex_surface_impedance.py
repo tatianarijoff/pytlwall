@@ -37,4 +37,3 @@ my_plot = pytlwall.PlotUtil()
 my_plot.plot_Z_vs_f_simple(mywall.f, mywall.ZTransSurf, 'S', title,
                            savedir, savename,
                            xscale='log', yscale='log')
-
