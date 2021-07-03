@@ -50,6 +50,7 @@ class TestPlot(unittest.TestCase):
                                                   'T', title,
                                                   savedir, savename,
                                                   'log', 'symlog')
+
     def test_onelayer_circSurf(self):
         print('\nTesting one layer circular relativ surface impedance')
         read_cfg = pytlwall.CfgIo('input/test001.cfg')
@@ -72,14 +73,15 @@ class TestPlot(unittest.TestCase):
         imped_type = "L"
         title = 'Longitudinal impedance'
         my_plot = pytlwall.PlotUtil()
-        my_plot.plot_Z_vs_f_simple(mywall.f, ZLongSurf , imped_type, title,
+        my_plot.plot_Z_vs_f_simple(mywall.f, ZLongSurf, imped_type, title,
                                    savedir, savename,
                                    xscale='log', yscale='log')
         savename = 'ZTransSurf.png'
         imped_type = "T"
-        my_plot.plot_Z_vs_f_simple(mywall.f, ZTransSurf , imped_type, title,
+        my_plot.plot_Z_vs_f_simple(mywall.f, ZTransSurf, imped_type, title,
                                    savedir, savename,
                                    xscale='log', yscale='log')
+
 
 if __name__ == '__main__':
     unittest.main()
