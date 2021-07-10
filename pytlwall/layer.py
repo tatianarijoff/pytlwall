@@ -182,7 +182,7 @@ class Layer(object):
     @freq_Hz.setter
     def freq_Hz(self, newfreq_Hz):
         try:
-            tmp_freq_Hz = newfreq_Hz.astype(np.float)
+            tmp_freq_Hz = newfreq_Hz.astype(float)
         except ValueError:
             print("The given value is not a good value for frequency,"
                   " the value is not modified")

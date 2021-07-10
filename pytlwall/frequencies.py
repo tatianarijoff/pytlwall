@@ -28,6 +28,9 @@ class Frequencies(object):
 
         if freq_list:
             self.freq = np.array(freq_list)
+            self._fmin = min(self.freq)
+            self._fmax = max(self.freq)
+            self._fstep = 0
         else:
             self.fmin = fmin
             self.fmax = fmax

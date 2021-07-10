@@ -5,6 +5,7 @@
  - [Tasks performed by pytlwall](#tasks-performed-by-pytlwall)
  - [Structure of the package](#structure-of-the-package)
  - [Installation code](#installation-code)
+ - [Configuration file](ConfigModel.md)
  - [References](#references)
 
 ## Introduction
@@ -32,7 +33,17 @@ pip install pytlwall
 assuming that the package has been downloaded in the current folder.
 
 ## Tasks performed by pytlwall
-
+TlWall can 
+- calculate 
+    - Longitudinal impedance
+    - Transverse impedance 
+    - Dipolar and quadrupolar impedance (using chamber shape and yokoya factors)
+    - Surface impedance (longitudinal and transverse)
+    - Indirect space charge impedance (longitudinal and transverse)
+    - Direct space charge impedance (longitudinal and transverse)
+- can read all the information from a configurator file 
+- can interact with you by shell and write the result into a configuration file
+- can do a basic plot and output management
 
 ## Structure of the package
 
@@ -45,7 +56,6 @@ that contains the source code, the required code and information for the install
  - **License** information is contained in the file "LICENSE.txt"
  - This **documentation** is contained in the file "README.md"
  - The **installation process** is defined by the files ["pyproject.toml"](#pyprojecttoml), ["MANIFEST.in"](#manifestin), and  ["setup.py"](#setuppy), which will be described in more detail in the following section.
- 
 
 
 ## References
