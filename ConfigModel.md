@@ -8,7 +8,8 @@
  - [Frequency information](#frequency_info)
 
 ## Basic information
-Section name [base_info]
+Section name = [base_info]
+
 The possible options in this section are:
 - component_name = a label to identify the element, not necessary
 - pipe_radius_m = the pipe radius in meter 
@@ -21,10 +22,11 @@ The possible options in this section are:
 
 ## Layer basic information
 Section name [layer_info]
+
 - nbr_layers = number of layers before the boundary 
 
 ## Layer information details
-Section name [layerN] where N is the layer number from 0 to number of layers before the boundary
+Section name = [layerN] where N is the layer number from 0 to number of layers before the boundary
 For every layer N
 - type= the kind of layer, possible value are:
  -- CW for conductive wall, 
@@ -39,7 +41,8 @@ For every layer N
 - RQ = RQ 
 
 ## Information details for boundary layer
-Section name [boundary]
+Section name = [boundary]
+
 For the boundary layer
 - type= the kind of layer, possible value are:
  -- CW for conductive wall, 
@@ -53,15 +56,17 @@ For the boundary layer
 - RQ = RQ 
 
 ## Beam information
-Section name [beam_info]
+Section name = [beam_info]
+
 For the beam section: 
 - test_beam_shift = the distance between the test and beam in meters
 - betarel = the relativistic beta, if this option is set all the others cinematic option are ignored
 - gammarel = the relativistic gamma, if betarel option is not defined and this option is set all the others cinematic option are ignored
 
-##Frequency information
-Section name [frequency_info]
+## Frequency information
+Section name = [frequency_info]
+
 For the frequency section:
-fmin = the minimum frequency in Hz
-fmax = the maximum frequency in Hz
-fstep = the number of points exponent per decade
+- fmin = the minimum frequency in Hz
+- fmax = the maximum frequency in Hz
+- fstep = the number of points exponent per decade
