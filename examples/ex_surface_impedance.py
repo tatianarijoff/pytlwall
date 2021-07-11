@@ -1,5 +1,6 @@
-import pytlwall
 import pandas as pd
+import pytlwall
+import pytlwall.plot_util as plot
 
 read_cfg = pytlwall.CfgIo('ex_surface_impedance/ex_surface_impedance.cfg')
 mywall = read_cfg.read_pytlwall()
@@ -24,16 +25,12 @@ df.to_excel(savedir + 'output.xlsx')
 savedir = 'ex_surface_impedance/img/'
 savename = 'ZLongSurf.png'
 title = 'Eq. Long. Surface imp.'
-
-my_plot = pytlwall.PlotUtil()
-my_plot.plot_Z_vs_f_simple(mywall.f, mywall.ZLongSurf, 'S', title,
-                           savedir, savename,
-                           xscale='log', yscale='log')
+plot.plot_Z_vs_f_simple(mywall.f, mywall.ZLongSurf, 'S', title,
+                        savedir, savename,
+                        xscale='log', yscale='log')
 
 savename = 'ZTrans.png'
 title = 'Eq. Trans. Surface imp.'
-
-my_plot = pytlwall.PlotUtil()
-my_plot.plot_Z_vs_f_simple(mywall.f, mywall.ZTransSurf, 'S', title,
-                           savedir, savename,
-                           xscale='log', yscale='log')
+plot.plot_Z_vs_f_simple(mywall.f, mywall.ZTransSurf, 'S', title,
+                        savedir, savename,
+                        xscale='log', yscale='log')

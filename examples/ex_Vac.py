@@ -1,5 +1,6 @@
-import pytlwall
 import pandas as pd
+import pytlwall
+import pytlwall.plot_util as plot
 
 read_cfg = pytlwall.CfgIo('ex_Vac/ex_Vac.cfg')
 mywall = read_cfg.read_pytlwall()
@@ -18,14 +19,12 @@ df.to_excel(savedir + 'output.xlsx')
 savedir = 'ex_Vac/img/'
 savename = 'ZLong.png'
 title = 'Longitudinal impedance'
-my_plot = pytlwall.PlotUtil()
-my_plot.plot_Z_vs_f_simple(mywall.f, mywall.ZLong, 'L', title,
-                           savedir, savename,
-                           xscale='log', yscale='log')
+plot.plot_Z_vs_f_simple(mywall.f, mywall.ZLong, 'L', title,
+                        savedir, savename,
+                        xscale='log', yscale='log')
 
 savename = 'ZTrans.png'
 title = 'Transversal impedance'
-my_plot = pytlwall.PlotUtil()
-my_plot.plot_Z_vs_f_simple(mywall.f, mywall.ZTrans, 'T', title,
-                           savedir, savename,
-                           xscale='log', yscale='log')
+plot.plot_Z_vs_f_simple(mywall.f, mywall.ZTrans, 'T', title,
+                        savedir, savename,
+                        xscale='log', yscale='log')

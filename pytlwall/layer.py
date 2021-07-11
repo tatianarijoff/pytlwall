@@ -184,9 +184,12 @@ class Layer(object):
         try:
             tmp_freq_Hz = newfreq_Hz.astype(float)
         except ValueError:
-            print("The given value is not a good value for frequency,"
+            print("The given value is not a good value for frequencies list,"
                   " the value is not modified")
             return
+        except AttributeError:
+            print("The given value is not a good value for frequencies list,"
+                  " the value is not modified")
         self._freq_Hz = tmp_freq_Hz
 
         return

@@ -1,5 +1,6 @@
-import pytlwall
 import pandas as pd
+import pytlwall
+import pytlwall.plot_util as plot
 
 read_cfg = pytlwall.CfgIo('ex_lowbeta/ex_lowbeta.cfg')
 mywall = read_cfg.read_pytlwall()
@@ -19,15 +20,13 @@ savedir = 'ex_lowbeta/img/'
 savename = 'ZLong.png'
 title = 'Longitudinal impedance'
 ZLong = mywall.ZLong + mywall.ZLongISC
-my_plot = pytlwall.PlotUtil()
-my_plot.plot_Z_vs_f_simple(mywall.f, ZLong, 'L', title,
-                           savedir, savename,
-                           xscale='log', yscale='log')
+plot.plot_Z_vs_f_simple(mywall.f, ZLong, 'L', title,
+                        savedir, savename,
+                        xscale='log', yscale='log')
 
 savename = 'ZTrans.png'
 title = 'Transverse impedance'
 ZTrans = mywall.ZTrans + mywall.ZTransISC
-my_plot = pytlwall.PlotUtil()
-my_plot.plot_Z_vs_f_simple(mywall.f, ZTrans, 'T', title,
-                           savedir, savename,
-                           xscale='log', yscale='log')
+plot.plot_Z_vs_f_simple(mywall.f, ZTrans, 'T', title,
+                        savedir, savename,
+                        xscale='log', yscale='log')

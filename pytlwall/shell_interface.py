@@ -67,7 +67,6 @@ def submenu_chamber():
     print('................................................................')
 
 
-
 def submenu_layer(boundary, layer_type, layer_nbr):
     print('................................................................')
     print('TlWall layer menu')
@@ -194,7 +193,7 @@ def layer_interface(boundary, layer_nbr):
                 print(f'Value used {layers.muinf_Hz}')
         elif choice == 'k':
             choice2 = input('What is the relaxation frequency for '
-                           'permeability in Hz ZERO NOT ALLOWED ? ')
+                            'permeability in Hz ZERO NOT ALLOWED ? ')
             try:
                 value = float(choice2)
                 if value != 0:
@@ -218,7 +217,7 @@ def layer_interface(boundary, layer_nbr):
                 print(f'Value used {layer.epsr}')
         elif choice == 'tau':
             choice2 = input('What is the relaxation time for '
-                                   'permittivity in seconds? ')
+                            'permittivity in seconds? ')
             try:
                 layer.tau = float(choice2)
             except ValueError:
@@ -293,7 +292,7 @@ def chamber_interface():
             print(f'Used vertical beta {chamber.betay}')
         elif choice.lower() == 'layer':
             choice = input('How many layers does the chamber have '
-                               '(not counting the boundary) ')
+                           '(not counting the boundary) ')
             try:
                 nbr_layer = int(choice)
             except ValueError:
@@ -457,8 +456,8 @@ def calc_interface():
                  'ZTransDSC': False,
                  'ZTransISC': False}
 
-    while (choice.lower() != 'back' and choice.lower() != 'x' and 
-          choice.lower() != 'end'):
+    while (choice.lower() != 'back' and choice.lower() != 'x' and
+           choice.lower() != 'end'):
         submenu_calc(list_calc)
         choice = input('Your choice: ')
         if choice in list_calc.keys():
@@ -469,10 +468,10 @@ def calc_interface():
 def sav_interface(list_calc):
     choice = ''
     file_output = {}
-    list_sav = {key: value for key, value in list_calc.items() 
+    list_sav = {key: value for key, value in list_calc.items()
                 if value is True}
-    while (choice.lower() != 'back' and choice.lower() != 'x' and 
-          choice.lower() != 'end'):
+    while (choice.lower() != 'back' and choice.lower() != 'x' and
+           choice.lower() != 'end'):
         submenu_print()
         choice = input('Your choice ')
         if choice.lower() == 'new':
@@ -484,16 +483,16 @@ def sav_interface(list_calc):
             file_output[choice]['prefix_flag'] = False
             file_output[choice]['imped'] = []
             choice2 = ''
-            while (choice2.lower() != 'back' and choice2.lower() != 'x' and 
-                choice2.lower() != 'end'):
+            while (choice2.lower() != 'back' and choice2.lower() != 'x' and
+                   choice2.lower() != 'end'):
                 submenu_print_plot(list_sav)
                 choice2 = input('What do you want to save in the file? ')
                 if choice2 in list_sav.keys():
                     list_sav[choice2] = True
                     file_output[choice]['imped'].append(choice2)
             choice2 = input('Do you want to save the real part of the '
-                           ' impedance, the imaginary part or both '
-                           ' (default)?  ')
+                            ' impedance, the imaginary part or both '
+                            ' (default)?  ')
             if choice2.lower() == 'real':
                 file_output[choice]['re_im_flag'] == 'real'
             if choice2.lower() == 'imag':
@@ -501,7 +500,7 @@ def sav_interface(list_calc):
             else:
                 file_output[choice]['re_im_flag'] == 'both'
             choice2 = input('Do you want to insert the component name in '
-                           'the saved variables? (y, N)')
+                            'the saved variables? (y, N)')
             if choice2.lower == 'Y':
                 file_output[choice]['prefix_flag'] is True
 
@@ -511,10 +510,10 @@ def sav_interface(list_calc):
 def plot_interface(list_calc):
     choice = ''
     img_output = {}
-    list_sav = {key: value for key, value in list_calc.items() 
+    list_sav = {key: value for key, value in list_calc.items()
                 if value is True}
-    while (choice.lower() != 'back' and choice.lower() != 'x' and 
-          choice.lower() != 'end'):
+    while (choice.lower() != 'back' and choice.lower() != 'x' and
+           choice.lower() != 'end'):
         submenu_print()
         choice = input('Your choice ')
         if choice.lower() == 'new':
@@ -529,16 +528,16 @@ def plot_interface(list_calc):
             img_output[choice]['yscale'] = ''
             img_output[choice]['imped'] = []
             choice2 = ''
-            while (choice2.lower() != 'back' and choice2.lower() != 'x' and 
-                choice2.lower() != 'end'):
+            while (choice2.lower() != 'back' and choice2.lower() != 'x' and
+                   choice2.lower() != 'end'):
                 submenu_print_plot(list_sav)
                 choice2 = input('What do you want to save in the file? ')
                 if choice2 in list_sav.keys():
                     list_sav[choice2] = True
                     img_output[choice]['imped'].append(choice2)
             choice2 = input('Do you want to save the real part of the '
-                           ' impedance, the imaginary part or both '
-                           ' (default)?  ')
+                            ' impedance, the imaginary part or both '
+                            ' (default)?  ')
             if choice2.lower() == 'real':
                 img_output[choice]['real_imag'] == 'real'
             if choice2.lower() == 'imag':
@@ -546,7 +545,7 @@ def plot_interface(list_calc):
             else:
                 img_output[choice]['real_imag'] == 'both'
             choice2 = input('Do you want to insert the component name in '
-                           'the saved variables? (y, N)')
+                            'the saved variables? (y, N)')
             if choice2.lower == 'Y':
                 img_output[choice]['prefix_flag'] is True
             choice2 = input('What is image title (if any, default enter)')
