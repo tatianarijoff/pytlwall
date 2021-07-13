@@ -28,14 +28,14 @@ class Beam(object):
         self.test_beam_shift = test_beam_shift
         self.betarel = 1
 
-        if (gammarel != default_gammarel):
-            self.gammarel = gammarel
-        elif (Ekin_MeV != default_Ekin_MeV):
+        if (Ekin_MeV != default_Ekin_MeV):
             self.Ekin_MeV = Ekin_MeV
         elif (p_MeV_c != default_p_MeV_c):
             self.p_MeV_c = p_MeV_c
-        else:
+        elif (betarel != default_betarel):
             self.betarel = betarel
+        else:
+            self.gammarel = gammarel
 
     @property
     def betarel(self):
