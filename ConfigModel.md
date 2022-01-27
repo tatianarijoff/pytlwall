@@ -13,9 +13,9 @@ Section name = [base_info]
 The possible options in this section are:
 - component_name = a label to identify the element, not necessary
 - pipe_radius_m = the pipe radius in meter 
-- pipe_hor_m = the pipe horizontal dimension in meter, if there is pipe_radius_m option this value is ignored
-- pipe_ver_m = the pipe verical dimension in meter, if there is pipe_radius_m option this value is ignored
-- pipe_len_m = the pipe length in meter        
+- pipe_hor_m = the half pipe horizontal dimension in meter, if there is pipe_radius_m option this value is ignored
+- pipe_ver_m = the half pipe verical dimension in meter, if there is pipe_radius_m option this value is ignored
+- pipe_len_m = the half pipe length in meter       
 - betax = the average twiss horizontal beta in the component (if not indicated default is 1) 
 - betay = the average twiss vertical beta in the component (if not indicated default is 1) 
 - chamber_shape = the shape of the vacuum chamber, allowed values are CIRCULAR (default), ELLIPTICAL, RECTANGULAR

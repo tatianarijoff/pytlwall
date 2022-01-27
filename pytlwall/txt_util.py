@@ -128,6 +128,19 @@ def read_frequency_txt(filename, separator='', column=0,
     return freq
 
 
+def read_surface_impedance_txt(filename, skipped_rows=0):
+    new_f = []
+    new_KZ = []
+    with open(filename) as f:
+        lines = f.readlines()
+    for i in range(skipped_rows, len(lines)):
+        tmp_f, tmp_KZRe, tmp_KZIm = lines[i].split()
+        new_f.append(float(tmp_f))
+        new_KZ.append(complex(float(tmp_KZRe), float(tmp_KZIm)))
+        
+    return new_f, new_KZ
+
+
 def load_apertype(filename):
     list_apertype = []
     with open(filename, 'r') as f:

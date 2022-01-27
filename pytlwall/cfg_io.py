@@ -11,6 +11,7 @@ import re
 from pathlib import Path
 import pytlwall
 import pytlwall.plot_util as plot
+import pytlwall.txt_util as txt
 
 
 class CfgIo(object):
@@ -106,6 +107,7 @@ class CfgIo(object):
     def read_freq(self, cfg_file=None):
         if cfg_file is not None:
             self.read_cfg(cfg_file)
+
         if self.config.has_section('frequency_info'):
             fmin = self.config.getfloat('frequency_info', 'fmin')
             fmax = self.config.getfloat('frequency_info', 'fmax')
@@ -113,6 +115,22 @@ class CfgIo(object):
             freq = pytlwall.Frequencies(fmin=fmin, fmax=fmax, fstep=fstep)
         elif self.config.has_section('frequency_file'):
             filename = self.config.get('frequency_file', 'filename')
+            try:
+                sep = self.config.get('frequency_file', 'separator')
+            except NoOptionError:
+                sep = ''
+            try: 
+                col = self.config.getint('frequency_file', 'freq_col')
+            except NoOptionError:
+                col = 0
+            try: 
+                skip_rows = self.config.getint('frequency_file', 
+                                                 'skip_rows')
+            except NoOptionError:
+                skip_rows = 0
+            freq = txt.read_frequency_txt(filename, sep, col, skip_rows)
+        else:
+            freq = pytlwall.Frequencies()
         return freq
 
     def save_chamber(self, chamber):
