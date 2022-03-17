@@ -190,10 +190,46 @@ class Layer(object):
         except AttributeError:
             print("The given value is not a good value for frequencies list,"
                   " the value is not modified")
+            return
         self._freq_Hz = tmp_freq_Hz
 
         return
 
+    @property
+    def KZ(self):
+        try:
+            return self._KZ
+        except AttributeError:
+            KZ = (1. + 1.j) / (self.sigmaPM * self.deltaM)
+        return KZ
+
+    @KZ.setter
+    def KZ(self, newKZ):
+        """ KZ is the surface impedance, in general the code will calculate
+            this value but you can need to put it directly if the frequencies
+            for the surface impedances are the one already defined for the 
+            layer, if not use the function set_surf_imped."""
+        if np.iscomplex(newKZ).all:
+            self._KZ = newKZ
+        else:
+            print("The given value is not a good value for the surface "
+                  " impedance, the value is not modified")
+        return
+
+    def set_surf_imped(self, newfreq_Hz, newKZ):
+        """ set_surf_imped allows you to insert directly the known values of
+        the surface impedance related to a given set of the frequencies (in HZ)
+        the function interpolate the values to the layer frequencies."""
+        if np.iscomplex(newKZ).all:
+            tmp_KZ = newKZ
+        else:
+            print("The given value is not a good value for the surface "
+                  " impedance, the value is not modified")
+        tmp_freq_Hz = newfreq_Hz
+        self._KZ = np.interp(self._freq_Hz, newfreq_Hz, tmp_KZ)
+        return
+
+            
     @property
     def sigmaAC(self):
         self._sigmaAC = self.calc_sigmaAC()
@@ -244,11 +280,6 @@ class Layer(object):
     def kprop(self):
         kprop = (1 - 1.j) / self.delta
         return kprop
-
-    @property
-    def KZ(self):
-        KZ = (1. + 1.j) / (self.sigmaPM * self.deltaM)
-        return KZ
 
     def calc_sigmaAC(self):
         """ sigmaAC = sigmaDC / (1 + j 2 pi tau f ) """

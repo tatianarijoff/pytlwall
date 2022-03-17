@@ -17,6 +17,5 @@ class TestLayer(unittest.TestCase):
         self.assertEqual(1., layer.mur[0])
         print(layer.sigmaDC_R)
 
-
 if __name__ == '__main__':
     unittest.main()
