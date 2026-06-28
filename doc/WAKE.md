@@ -61,7 +61,7 @@ limits — is described in the companion document
 
 ## The Wake Functions
 
-`TLWallWake` exposes eight quantities — four computed wakes and four
+`TLWallWake` exposes twelve quantities — eight computed wakes and four
 analytical reference limits.
 
 ### Computed wakes
@@ -72,6 +72,18 @@ analytical reference limits.
 | `WLong_base` | Longitudinal "base" wake from the reactive part of ζ | `Im{ζ_eff}` |
 | `WTrans_base` | Transverse "base" wake | `WLong_base` |
 | `WTrans_Bypass` | Transverse wake including the inductive bypass | `WLong_base` + bypass |
+| `WDipX` | Horizontal dipolar wake | `WTrans_Bypass · drivx_yokoya · betax` |
+| `WDipY` | Vertical dipolar wake | `WTrans_Bypass · drivy_yokoya · betay` |
+| `WQuadX` | Horizontal quadrupolar wake | `WTrans_Bypass · detx_yokoya · betax` |
+| `WQuadY` | Vertical quadrupolar wake | `WTrans_Bypass · dety_yokoya · betay` |
+
+The directional wakes (`WDipX/Y`, `WQuadX/Y`) follow the same logic as the
+dipolar/quadrupolar impedances of `TlWall` (`ZDipX/ZDipY/ZQuadX/ZQuadY`):
+the transverse wake `WTrans_Bypass` weighted by the appropriate **Yokoya
+factor** and betatron function. The Yokoya factors are applied uniformly
+for every chamber shape; for a circular chamber `drivx = drivy = 1` and
+`detx = dety = 0`, so the dipolar wakes reduce to `WTrans_Bypass · β` and
+the quadrupolar wakes vanish.
 
 ### Analytical reference limits
 
@@ -135,7 +147,7 @@ w_long = wake.WLong_base
 w_trans = wake.WTrans_base
 
 # Or get everything at once
-all_wakes = wake.get_all_wakes()   # dict with all 8 quantities
+all_wakes = wake.get_all_wakes()   # dict with all 12 quantities
 ```
 
 ---
@@ -160,7 +172,8 @@ attribute, if the chamber has no layers, or if the time grid is empty.
 | `time_s` | `np.ndarray` | Shortcut to `times.time_s` |
 | `kbess_time` | `np.ndarray` | Bessel argument scale, `2π/(c·β·t)` |
 | `Zeta_eff` | `np.ndarray` (complex) | Effective surface impedance ζ transported through the stack |
-| `WLong`, `WLong_base`, `WTrans_base`, `WTrans_Bypass` | `np.ndarray` (real) | Computed wakes (cached) |
+| `WLong`, `WLong_base`, `WTrans_base`, `WTrans_Bypass` | `np.ndarray` (real) | Monopolar computed wakes (cached) |
+| `WDipX`, `WDipY`, `WQuadX`, `WQuadY` | `np.ndarray` (real) | Dipolar / quadrupolar wakes, Yokoya-weighted (cached) |
 | `WLongThick`, `WTransThick`, `WLongThin`, `WTransThin` | `np.ndarray` (real) | Analytical limits |
 | `sigma_eff` | `float` | Effective conductivity used by the thick limit |
 | `thick_eff` | `float` | Effective conductor thickness used by the thin limit |
@@ -171,7 +184,7 @@ attribute, if the chamber has no layers, or if the time grid is empty.
 |--------|-------------|
 | `calc_WLong()`, `calc_WLong_base()`, … | Force (re)computation of a wake |
 | `calc_WLongThick()`, `calc_WLongThin()`, … | Force (re)computation of a limit |
-| `get_all_wakes()` | Return all 8 wakes as a `dict` |
+| `get_all_wakes()` | Return all 12 wakes as a `dict` |
 | `summary()` | Human-readable configuration summary |
 | `__repr__`, `__str__` | String representations |
 

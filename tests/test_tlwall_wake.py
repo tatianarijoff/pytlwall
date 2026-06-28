@@ -135,7 +135,8 @@ class TestTLWallWakeWakes(unittest.TestCase):
     def test_all_wakes_are_real_float64_arrays(self):
         """Test that every wake returns a real float64 array of the right length."""
         n = len(self.times.time_s)
-        for name in ("WLong", "WLong_base", "WTrans_base", "WTrans_Bypass"):
+        for name in ("WLong", "WLong_base", "WTrans_base", "WTrans_Bypass",
+                     "WDipX", "WDipY", "WQuadX", "WQuadY"):
             with self.subTest(wake=name):
                 arr = getattr(self.wake, name)
                 self.assertIsInstance(arr, np.ndarray)
@@ -144,7 +145,8 @@ class TestTLWallWakeWakes(unittest.TestCase):
 
     def test_all_wakes_are_finite(self):
         """Test no wake contains NaN or inf."""
-        for name in ("WLong", "WLong_base", "WTrans_base", "WTrans_Bypass"):
+        for name in ("WLong", "WLong_base", "WTrans_base", "WTrans_Bypass",
+                     "WDipX", "WDipY", "WQuadX", "WQuadY"):
             with self.subTest(wake=name):
                 self.assertTrue(np.all(np.isfinite(getattr(self.wake, name))))
 
@@ -166,10 +168,11 @@ class TestTLWallWakeWakes(unittest.TestCase):
         b = self.wake.WLong
         self.assertIs(a, b)
 
-    def test_get_all_wakes_returns_eight_keys(self):
-        """Test the convenience dict contains all 8 wakes."""
+    def test_get_all_wakes_returns_twelve_keys(self):
+        """Test the convenience dict contains all 12 wakes."""
         wakes = self.wake.get_all_wakes()
         expected = {"WLong", "WLong_base", "WTrans_base", "WTrans_Bypass",
+                    "WDipX", "WDipY", "WQuadX", "WQuadY",
                     "WLongThick", "WTransThick", "WLongThin", "WTransThin"}
         self.assertEqual(set(wakes.keys()), expected)
 
@@ -448,6 +451,81 @@ class TestTLWallWakePlots(unittest.TestCase):
             cls.plot.close_all_figures()
         except Exception:
             pass
+
+
+# ---------------------------------------------------------------------------
+# Dipolar / quadrupolar wakes (Yokoya factors)
+# ---------------------------------------------------------------------------
+
+class TestTLWallWakeDirectionalWakes(unittest.TestCase):
+    """Verify the dipolar/quadrupolar wakes follow the impedance logic."""
+
+    def _make_chamber(self, shape, betax, betay, h=None, v=None):
+        chamber = Chamber(pipe_rad_m=0.022, pipe_len_m=1.0,
+                          chamber_shape=shape, betax=betax, betay=betay)
+        chamber.layers = [
+            Layer(layer_type="CW", thick_m=2e-3, sigmaDC=5.96e7),
+            Layer(boundary=True),
+        ]
+        if h is not None:
+            chamber.pipe_hor_m = h
+        if v is not None:
+            chamber.pipe_ver_m = v
+        return chamber
+
+    def setUp(self):
+        self.beam = create_beam_lhc()
+        self.times = make_default_times(n=201)
+
+    def test_circular_dipolar_equals_wtrans_times_beta(self):
+        """Circular: WDipX/Y = WTrans_Bypass * beta (driving Yokoya = 1)."""
+        ch = self._make_chamber("CIRCULAR", betax=2.0, betay=3.0)
+        w = TLWallWake(ch, self.beam, self.times)
+        self.assertTrue(np.allclose(w.WDipX, w.WTrans_Bypass * 2.0))
+        self.assertTrue(np.allclose(w.WDipY, w.WTrans_Bypass * 3.0))
+
+    def test_circular_quadrupolar_is_zero(self):
+        """Circular: WQuadX/Y vanish (detuning Yokoya = 0)."""
+        ch = self._make_chamber("CIRCULAR", betax=2.0, betay=3.0)
+        w = TLWallWake(ch, self.beam, self.times)
+        self.assertTrue(np.allclose(w.WQuadX, 0.0))
+        self.assertTrue(np.allclose(w.WQuadY, 0.0))
+
+    def test_directional_wakes_match_yokoya_definition(self):
+        """Elliptical: each wake equals WTrans_Bypass * yokoya * beta."""
+        ch = self._make_chamber("ELLIPTICAL", betax=2.0, betay=3.0,
+                                 h=0.040, v=0.020)
+        w = TLWallWake(ch, self.beam, self.times)
+        self.assertTrue(np.allclose(
+            w.WDipX, w.WTrans_Bypass * ch.drivx_yokoya_factor * ch.betax))
+        self.assertTrue(np.allclose(
+            w.WDipY, w.WTrans_Bypass * ch.drivy_yokoya_factor * ch.betay))
+        self.assertTrue(np.allclose(
+            w.WQuadX, w.WTrans_Bypass * ch.detx_yokoya_factor * ch.betax))
+        self.assertTrue(np.allclose(
+            w.WQuadY, w.WTrans_Bypass * ch.dety_yokoya_factor * ch.betay))
+
+    def test_directional_wakes_are_real_float_arrays(self):
+        """Directional wakes are real float64 arrays of the right length."""
+        ch = self._make_chamber("ELLIPTICAL", betax=2.0, betay=3.0,
+                                 h=0.040, v=0.020)
+        w = TLWallWake(ch, self.beam, self.times)
+        n = len(self.times.time_s)
+        for name in ("WDipX", "WDipY", "WQuadX", "WQuadY"):
+            with self.subTest(wake=name):
+                arr = getattr(w, name)
+                self.assertIsInstance(arr, np.ndarray)
+                self.assertEqual(arr.dtype, np.float64)
+                self.assertEqual(arr.shape, (n,))
+                self.assertTrue(np.all(np.isfinite(arr)))
+
+    def test_directional_wakes_are_cached(self):
+        """Repeated access returns the same cached object."""
+        ch = self._make_chamber("CIRCULAR", betax=1.0, betay=1.0)
+        w = TLWallWake(ch, self.beam, self.times)
+        for name in ("WDipX", "WDipY", "WQuadX", "WQuadY"):
+            with self.subTest(wake=name):
+                self.assertIs(getattr(w, name), getattr(w, name))
 
 
 # ---------------------------------------------------------------------------

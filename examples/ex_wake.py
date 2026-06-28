@@ -31,6 +31,13 @@ in the appropriate time ranges. The full wakes ``WLong`` and
 terms) and are saved to xlsx for completeness but are NOT plotted
 against the analytical limits, since those limits are derived only
 from the reactive part.
+
+The directional wakes ``WDipX``, ``WDipY``, ``WQuadX`` and ``WQuadY``
+(``WTrans_Bypass`` weighted by the Yokoya factors and betatron
+functions) are also saved to xlsx. For the circular chambers used here
+the driving Yokoya factors are 1 and the detuning factors are 0, so the
+dipolar wakes equal ``WTrans_Bypass · beta`` and the quadrupolar wakes
+vanish.
 """
 
 import os
@@ -84,6 +91,13 @@ def _run_one_case(case_dir, cfg_name, label):
     WTrans = wake.WTrans_Bypass        # full transverse wake (with bypass)
     WTrans_base = wake.WTrans_base     # reactive part (matches Thick)
 
+    # Directional wakes (Yokoya-weighted, built on WTrans_Bypass).
+    # For a circular chamber: WDip* = WTrans_Bypass * beta, WQuad* = 0.
+    WDipX = wake.WDipX
+    WDipY = wake.WDipY
+    WQuadX = wake.WQuadX
+    WQuadY = wake.WQuadY
+
     # Analytical reference limits.
     WLong_thick = wake.WLongThick
     WLong_thin = wake.WLongThin
@@ -104,6 +118,10 @@ def _run_one_case(case_dir, cfg_name, label):
         "WTrans_base [V/(C*m)]": WTrans_base,
         "WTransThick (analytical) [V/(C*m)]": WTrans_thick,
         "WTransThin (analytical) [V/(C*m)]": WTrans_thin,
+        "WDipX [V/(C*m)]": WDipX,
+        "WDipY [V/(C*m)]": WDipY,
+        "WQuadX [V/(C*m)]": WQuadX,
+        "WQuadY [V/(C*m)]": WQuadY,
     }
     df = pd.DataFrame(data)
     excel_path = os.path.join(outdir_data, "wake.xlsx")

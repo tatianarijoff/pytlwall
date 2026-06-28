@@ -153,6 +153,10 @@ def example_all_quantities():
         "WLong_base":    (wake.WLong_base,   "V/C        (reactive part)"),
         "WTrans_base":   (wake.WTrans_base,  "V/(C*m)    (reactive part)"),
         "WTrans_Bypass": (wake.WTrans_Bypass, "V/(C*m)    (full)"),
+        "WDipX":         (wake.WDipX,        "V/(C*m)    (dipolar, Yokoya x beta)"),
+        "WDipY":         (wake.WDipY,        "V/(C*m)    (dipolar, Yokoya x beta)"),
+        "WQuadX":        (wake.WQuadX,       "V/(C*m)    (quadrupolar, Yokoya x beta)"),
+        "WQuadY":        (wake.WQuadY,       "V/(C*m)    (quadrupolar, Yokoya x beta)"),
         "WLongThick":    (wake.WLongThick,   "V/C        (analytical thick limit)"),
         "WLongThin":     (wake.WLongThin,    "V/C        (analytical thin limit)"),
         "WTransThick":   (wake.WTransThick,  "V/(C*m)    (analytical thick limit)"),
@@ -371,6 +375,63 @@ def example_custom_time_grid():
 
 
 # ----------------------------------------------------------------------
+# Example 8 - Dipolar and quadrupolar wakes (Yokoya factors)
+# ----------------------------------------------------------------------
+
+def example_directional_wakes():
+    """Example 8: Dipolar / quadrupolar wakes for circular vs elliptical."""
+    print_separator()
+    print("EXAMPLE 8: Dipolar / quadrupolar wakes (Yokoya factors)")
+    print_separator()
+
+    beam = _build_lhc_beam()
+    times = pytlwall.Times()
+
+    # Circular chamber: driving Yokoya = 1, detuning Yokoya = 0.
+    # -> WDip* = WTrans_Bypass * beta, WQuad* = 0.
+    chamber_circ = _build_chamber("V")
+    chamber_circ.betax = 2.0
+    chamber_circ.betay = 3.0
+    wake_circ = pytlwall.TLWallWake(chamber_circ, beam, times)
+
+    print("Circular chamber (betax=2.0, betay=3.0):")
+    print(f"  WDipX  == WTrans_Bypass*betax ? "
+          f"{np.allclose(wake_circ.WDipX, wake_circ.WTrans_Bypass*2.0)}")
+    print(f"  WDipY  == WTrans_Bypass*betay ? "
+          f"{np.allclose(wake_circ.WDipY, wake_circ.WTrans_Bypass*3.0)}")
+    print(f"  WQuadX all zero ? {np.allclose(wake_circ.WQuadX, 0.0)}")
+    print(f"  WQuadY all zero ? {np.allclose(wake_circ.WQuadY, 0.0)}")
+
+    # Elliptical chamber: non-trivial Yokoya factors -> non-zero quad.
+    chamber_ell = pytlwall.Chamber(
+        pipe_len_m=1.0, pipe_rad_m=0.022, chamber_shape="ELLIPTICAL",
+        betax=2.0, betay=3.0,
+        layers=[
+            pytlwall.Layer(layer_type="CW", thick_m=2e-3, sigmaDC=5.96e7),
+            pytlwall.Layer(layer_type="V", boundary=True),
+        ],
+    )
+    chamber_ell.pipe_hor_m = 0.040
+    chamber_ell.pipe_ver_m = 0.020
+    wake_ell = pytlwall.TLWallWake(chamber_ell, beam, times)
+
+    print("\nElliptical chamber (asymmetric, q = "
+          f"{chamber_ell.yokoya_q:.3f}):")
+    print(f"  drivx = {chamber_ell.drivx_yokoya_factor:.4f}, "
+          f"drivy = {chamber_ell.drivy_yokoya_factor:.4f}")
+    print(f"  detx  = {chamber_ell.detx_yokoya_factor:.4f}, "
+          f"dety  = {chamber_ell.dety_yokoya_factor:.4f}")
+    print(f"  |WDipX| max  = {np.max(np.abs(wake_ell.WDipX)):.3e} V/(C*m)")
+    print(f"  |WQuadX| max = {np.max(np.abs(wake_ell.WQuadX)):.3e} V/(C*m)")
+
+    print("\nObservation:")
+    print("  Dipolar and quadrupolar wakes mirror ZDip*/ZQuad* of TlWall:")
+    print("  WTrans_Bypass weighted by the Yokoya factor and betatron.")
+    print("  Circular symmetry -> driving=1, detuning=0, so the dipolar")
+    print("  wakes reduce to WTrans_Bypass*beta and the quadrupolar vanish.")
+
+
+# ----------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------
 
@@ -387,6 +448,7 @@ def main():
     example_thickness_scan()
     example_full_wakes()
     example_custom_time_grid()
+    example_directional_wakes()
 
     print_separator()
     print("SUMMARY")

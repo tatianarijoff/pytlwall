@@ -14,6 +14,8 @@ Deliverables
 * ``WLong_base``   — longitudinal wake "base" from the reactive part of ζ.
 * ``WTrans_base``  — transverse wake "base", derived from ``WLong_base``.
 * ``WTrans_Bypass``— transverse wake including the inductive bypass.
+* ``WDipX/WDipY``  — dipolar wakes (``WTrans_Bypass`` × driving Yokoya × β).
+* ``WQuadX/WQuadY``— quadrupolar wakes (``WTrans_Bypass`` × detuning Yokoya × β).
 
 Naming convention
 -----------------
@@ -199,6 +201,11 @@ class TLWallWake:
         self._WLong_base: Optional[np.ndarray] = None
         self._WTrans_base: Optional[np.ndarray] = None
         self._WTrans_Bypass: Optional[np.ndarray] = None
+        # Dipolar / quadrupolar wakes (Yokoya-weighted, see below)
+        self._WDipX: Optional[np.ndarray] = None
+        self._WDipY: Optional[np.ndarray] = None
+        self._WQuadX: Optional[np.ndarray] = None
+        self._WQuadY: Optional[np.ndarray] = None
         # Analytical reference wakes (thick-wall and thin-wall limits)
         self._WLongThick: Optional[np.ndarray] = None
         self._WTransThick: Optional[np.ndarray] = None
@@ -569,6 +576,180 @@ class TLWallWake:
         return self._WTrans_Bypass
 
     # ---------------------------------------------------------------------
+    # Dipolar and quadrupolar wakes (with Yokoya factors)
+    # ---------------------------------------------------------------------
+    #
+    # These mirror, in the time domain, the ``ZDipX/ZDipY/ZQuadX/ZQuadY``
+    # properties of :class:`pytlwall.tlwall.TlWall`. There, the directional
+    # impedances are built from the transverse impedance ``ZTrans`` (which
+    # already contains the inductive bypass) multiplied by the appropriate
+    # Yokoya geometry factor and betatron function:
+    #
+    #     ZDipX  = ZTrans * drivx_yokoya * betax
+    #     ZDipY  = ZTrans * drivy_yokoya * betay
+    #     ZQuadX = ZTrans * detx_yokoya  * betax
+    #     ZQuadY = ZTrans * dety_yokoya  * betay
+    #
+    # The wake counterpart of ``ZTrans`` is :attr:`WTrans_Bypass` — the
+    # transverse wake *including* the inductive bypass — so the same four
+    # combinations are formed from it. Unlike the impedance ``ZQuad``,
+    # which substitutes a Wake2D closed form for circular chambers, here
+    # the Yokoya factors are used **uniformly for every shape** (as
+    # requested). For a circular chamber the chamber returns
+    # ``drivx = drivy = 1`` and ``detx = dety = 0``, so the dipolar wakes
+    # reduce to ``WTrans_Bypass * beta`` and the quadrupolar wakes vanish,
+    # which is the expected behaviour for circular symmetry.
+
+    def _yokoya(self, name: str) -> float:
+        """Fetch a Yokoya factor from the chamber, defaulting safely.
+
+        Returns ``1.0`` for the driving factors and ``0.0`` for the
+        detuning factors when the chamber does not expose them (e.g. a
+        minimal duck-typed stand-in), so the directional wakes degrade
+        gracefully to the circular-symmetry result.
+        """
+        default = 0.0 if name.startswith("det") else 1.0
+        return float(getattr(self._chamber, f"{name}_yokoya_factor", default))
+
+    def _betax(self) -> float:
+        return float(getattr(self._chamber, "betax", 1.0))
+
+    def _betay(self) -> float:
+        return float(getattr(self._chamber, "betay", 1.0))
+
+    def calc_WDipX(self) -> np.ndarray:
+        """
+        Horizontal dipolar wake.
+
+        Formula
+        -------
+        ``W_dipx(t) = W_trans_bypass(t) * drivx_yokoya * betax``
+
+        Mirrors :attr:`pytlwall.tlwall.TlWall.ZDipX`. For a circular
+        chamber ``drivx_yokoya = 1`` and this reduces to
+        ``W_trans_bypass * betax``.
+
+        Returns
+        -------
+        np.ndarray
+            Real-valued horizontal dipolar wake on the time grid.
+        """
+        try:
+            wdip = self.WTrans_Bypass * self._yokoya("drivx") * self._betax()
+            self._WDipX = wdip.astype(float)
+            return self._WDipX
+        except Exception as exc:  # pragma: no cover
+            raise TLWallWakeCalculationError(
+                f"Failed to compute WDipX: {exc}"
+            ) from exc
+
+    @property
+    def WDipX(self) -> np.ndarray:
+        """Horizontal dipolar wake (cached, real)."""
+        if self._WDipX is None:
+            self._WDipX = self.calc_WDipX()
+        return self._WDipX
+
+    def calc_WDipY(self) -> np.ndarray:
+        """
+        Vertical dipolar wake.
+
+        Formula
+        -------
+        ``W_dipy(t) = W_trans_bypass(t) * drivy_yokoya * betay``
+
+        Mirrors :attr:`pytlwall.tlwall.TlWall.ZDipY`. For a circular
+        chamber ``drivy_yokoya = 1`` and this reduces to
+        ``W_trans_bypass * betay``.
+
+        Returns
+        -------
+        np.ndarray
+            Real-valued vertical dipolar wake on the time grid.
+        """
+        try:
+            wdip = self.WTrans_Bypass * self._yokoya("drivy") * self._betay()
+            self._WDipY = wdip.astype(float)
+            return self._WDipY
+        except Exception as exc:  # pragma: no cover
+            raise TLWallWakeCalculationError(
+                f"Failed to compute WDipY: {exc}"
+            ) from exc
+
+    @property
+    def WDipY(self) -> np.ndarray:
+        """Vertical dipolar wake (cached, real)."""
+        if self._WDipY is None:
+            self._WDipY = self.calc_WDipY()
+        return self._WDipY
+
+    def calc_WQuadX(self) -> np.ndarray:
+        """
+        Horizontal quadrupolar wake.
+
+        Formula
+        -------
+        ``W_quadx(t) = W_trans_bypass(t) * detx_yokoya * betax``
+
+        Mirrors :attr:`pytlwall.tlwall.TlWall.ZQuadX`, but always uses the
+        Yokoya detuning factor (no Wake2D special case). For a circular
+        chamber ``detx_yokoya = 0`` and the quadrupolar wake vanishes.
+
+        Returns
+        -------
+        np.ndarray
+            Real-valued horizontal quadrupolar wake on the time grid.
+        """
+        try:
+            wquad = self.WTrans_Bypass * self._yokoya("detx") * self._betax()
+            self._WQuadX = wquad.astype(float)
+            return self._WQuadX
+        except Exception as exc:  # pragma: no cover
+            raise TLWallWakeCalculationError(
+                f"Failed to compute WQuadX: {exc}"
+            ) from exc
+
+    @property
+    def WQuadX(self) -> np.ndarray:
+        """Horizontal quadrupolar wake (cached, real)."""
+        if self._WQuadX is None:
+            self._WQuadX = self.calc_WQuadX()
+        return self._WQuadX
+
+    def calc_WQuadY(self) -> np.ndarray:
+        """
+        Vertical quadrupolar wake.
+
+        Formula
+        -------
+        ``W_quady(t) = W_trans_bypass(t) * dety_yokoya * betay``
+
+        Mirrors :attr:`pytlwall.tlwall.TlWall.ZQuadY`, but always uses the
+        Yokoya detuning factor (no Wake2D special case). For a circular
+        chamber ``dety_yokoya = 0`` and the quadrupolar wake vanishes.
+
+        Returns
+        -------
+        np.ndarray
+            Real-valued vertical quadrupolar wake on the time grid.
+        """
+        try:
+            wquad = self.WTrans_Bypass * self._yokoya("dety") * self._betay()
+            self._WQuadY = wquad.astype(float)
+            return self._WQuadY
+        except Exception as exc:  # pragma: no cover
+            raise TLWallWakeCalculationError(
+                f"Failed to compute WQuadY: {exc}"
+            ) from exc
+
+    @property
+    def WQuadY(self) -> np.ndarray:
+        """Vertical quadrupolar wake (cached, real)."""
+        if self._WQuadY is None:
+            self._WQuadY = self.calc_WQuadY()
+        return self._WQuadY
+
+    # ---------------------------------------------------------------------
     # Analytical limits (Thick / Thin wall)
     # ---------------------------------------------------------------------
     #
@@ -768,6 +949,10 @@ class TLWallWake:
             "WLong_base": self.WLong_base,
             "WTrans_base": self.WTrans_base,
             "WTrans_Bypass": self.WTrans_Bypass,
+            "WDipX": self.WDipX,
+            "WDipY": self.WDipY,
+            "WQuadX": self.WQuadX,
+            "WQuadY": self.WQuadY,
             "WLongThick": self.WLongThick,
             "WTransThick": self.WTransThick,
             "WLongThin": self.WLongThin,

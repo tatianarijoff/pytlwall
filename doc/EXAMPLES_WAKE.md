@@ -40,6 +40,7 @@
 - [Example 5: Wall Thickness Scan](#example-5-wall-thickness-scan)
 - [Example 6: Full vs Reactive Wakes](#example-6-full-vs-reactive-wakes)
 - [Example 7: Custom Time Grid](#example-7-custom-time-grid)
+- [Example 8: Dipolar and Quadrupolar Wakes](#example-8-dipolar-and-quadrupolar-wakes)
 - [cfg-based Usage](#cfg-based-usage)
 - [Wake Reference](#wake-reference)
 
@@ -162,6 +163,10 @@ quantities = {
     "WLong_base":    (wake.WLong_base,   "V/C        (reactive part)"),
     "WTrans_base":   (wake.WTrans_base,  "V/(C·m)    (reactive part)"),
     "WTrans_Bypass": (wake.WTrans_Bypass, "V/(C·m)    (full)"),
+    "WDipX":         (wake.WDipX,        "V/(C·m)    (dipolar, Yokoya × β)"),
+    "WDipY":         (wake.WDipY,        "V/(C·m)    (dipolar, Yokoya × β)"),
+    "WQuadX":        (wake.WQuadX,       "V/(C·m)    (quadrupolar, Yokoya × β)"),
+    "WQuadY":        (wake.WQuadY,       "V/(C·m)    (quadrupolar, Yokoya × β)"),
     "WLongThick":    (wake.WLongThick,   "V/C        (analytical thick limit)"),
     "WLongThin":     (wake.WLongThin,    "V/C        (analytical thin limit)"),
     "WTransThick":   (wake.WTransThick,  "V/(C·m)    (analytical thick limit)"),
@@ -407,6 +412,75 @@ Creates a log-spaced grid from `10^tmin_exp` to `10^tmax_exp` seconds.
 
 ---
 
+## Example 8: Dipolar and Quadrupolar Wakes
+
+The transverse wake `WTrans_Bypass` is the *monopolar* transmission-line
+wake. The directional wakes follow the same logic as the dipolar and
+quadrupolar impedances of `TlWall` (`ZDipX/ZDipY/ZQuadX/ZQuadY`): the
+transverse wake is weighted by the appropriate **Yokoya factor** and
+betatron function.
+
+| Wake | Formula |
+|------|---------|
+| `WDipX` | `WTrans_Bypass · drivx_yokoya · betax` |
+| `WDipY` | `WTrans_Bypass · drivy_yokoya · betay` |
+| `WQuadX` | `WTrans_Bypass · detx_yokoya · betax` |
+| `WQuadY` | `WTrans_Bypass · dety_yokoya · betay` |
+
+The Yokoya factors are used **uniformly for every chamber shape**. For a
+circular chamber the chamber returns `drivx = drivy = 1` and
+`detx = dety = 0`, so the dipolar wakes reduce to `WTrans_Bypass · β` and
+the quadrupolar wakes vanish — the expected behaviour for circular
+symmetry.
+
+```python
+import pytlwall
+import numpy as np
+
+beam = pytlwall.Beam(gammarel=7460.52)
+times = pytlwall.Times()
+
+# --- Circular chamber: drivx=drivy=1, detx=dety=0 ---
+chamber = pytlwall.Chamber(
+    pipe_len_m=1.0, pipe_rad_m=0.022, chamber_shape="CIRCULAR",
+    betax=2.0, betay=3.0,
+    layers=[
+        pytlwall.Layer(layer_type="CW", thick_m=2e-3, sigmaDC=5.96e7),
+        pytlwall.Layer(layer_type="V", boundary=True),
+    ],
+)
+wake = pytlwall.TLWallWake(chamber, beam, times)
+
+assert np.allclose(wake.WDipX, wake.WTrans_Bypass * 2.0)   # × betax
+assert np.allclose(wake.WDipY, wake.WTrans_Bypass * 3.0)   # × betay
+assert np.allclose(wake.WQuadX, 0.0)                       # detx = 0
+assert np.allclose(wake.WQuadY, 0.0)                       # dety = 0
+
+# --- Elliptical chamber: non-trivial Yokoya factors ---
+chamber_ell = pytlwall.Chamber(
+    pipe_len_m=1.0, pipe_rad_m=0.022, chamber_shape="ELLIPTICAL",
+    betax=2.0, betay=3.0,
+    layers=[
+        pytlwall.Layer(layer_type="CW", thick_m=2e-3, sigmaDC=5.96e7),
+        pytlwall.Layer(layer_type="V", boundary=True),
+    ],
+)
+chamber_ell.pipe_hor_m = 0.040
+chamber_ell.pipe_ver_m = 0.020
+wake_ell = pytlwall.TLWallWake(chamber_ell, beam, times)
+
+print(f"q       = {chamber_ell.yokoya_q:.3f}")
+print(f"detx    = {chamber_ell.detx_yokoya_factor:.4f}")
+print(f"|WQuadX| max = {np.max(np.abs(wake_ell.WQuadX)):.3e} V/(C·m)")
+```
+
+**Note** — Unlike `ZQuadX/ZQuadY` of `TlWall`, which substitute a Wake2D
+closed form for circular chambers, the wake quadrupolar terms always use
+the Yokoya detuning factor (no special case). This is the requested
+behaviour: *always use the Yokoya factors*.
+
+---
+
 ## cfg-based Usage
 
 Wake calculations can also be driven by a configuration file. The
@@ -491,6 +565,10 @@ and produces side-by-side plots.
 | `WLong_base` | V/C | Reactive part of longitudinal wake |
 | `WTrans_Bypass` | V/(C·m) | Full transverse wake (with inductive bypass) |
 | `WTrans_base` | V/(C·m) | Reactive part of transverse wake |
+| `WDipX` | V/(C·m) | Horizontal dipolar wake (`WTrans_Bypass · drivx_yokoya · betax`) |
+| `WDipY` | V/(C·m) | Vertical dipolar wake (`WTrans_Bypass · drivy_yokoya · betay`) |
+| `WQuadX` | V/(C·m) | Horizontal quadrupolar wake (`WTrans_Bypass · detx_yokoya · betax`) |
+| `WQuadY` | V/(C·m) | Vertical quadrupolar wake (`WTrans_Bypass · dety_yokoya · betay`) |
 
 ### Analytical Limits
 

@@ -218,6 +218,42 @@ expected to reproduce the thin-wall limit.
 
 ---
 
+## Dipolar and Quadrupolar Wakes
+
+`WTrans_Bypass` is the *monopolar* transmission-line transverse wake. The
+directional (dipolar and quadrupolar) wakes are obtained exactly as in the
+frequency domain, where `TlWall` builds `ZDipX/ZDipY/ZQuadX/ZQuadY` from the
+transverse impedance `ZTrans` weighted by a **Yokoya geometry factor** and a
+betatron function. The time-domain counterpart of `ZTrans` is
+`WTrans_Bypass`, so:
+
+```
+WDipX(t)  = WTrans_Bypass(t) · drivx_yokoya · βx
+WDipY(t)  = WTrans_Bypass(t) · drivy_yokoya · βy
+WQuadX(t) = WTrans_Bypass(t) · detx_yokoya  · βx
+WQuadY(t) = WTrans_Bypass(t) · dety_yokoya  · βy
+```
+
+The Yokoya factors `drivx, drivy` (driving) and `detx, dety` (detuning) are
+interpolated from the chamber asymmetry parameter
+`q = |h − v| / (h + v)` and depend only on the cross-section shape. They are
+applied **uniformly for every shape**. For the limiting case of a circular
+chamber:
+
+```
+drivx = drivy = 1 ,   detx = dety = 0
+⟹ WDipX = WTrans_Bypass · βx ,  WDipY = WTrans_Bypass · βy
+⟹ WQuadX = WQuadY = 0
+```
+
+which reproduces the expected absence of geometric quadrupolar coupling in
+circular symmetry. Note that, unlike the frequency-domain `ZQuad`, which
+substitutes a Wake2D closed form for circular chambers, the wake
+quadrupolar terms keep using the Yokoya detuning factor with no special
+case.
+
+---
+
 ## Analytical Limits
 
 Two regimes of the resistive-wall wake have closed-form expressions. They
