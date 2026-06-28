@@ -39,6 +39,16 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 sys.path.insert(0, str(HERE))
 
+# Directories resolved relative to THIS file, so the runner behaves the
+# same whether invoked as `python tests/run_all_tests.py` (repo root) or
+# `python run_all_tests.py` (from inside tests/). Relying on the cwd-relative
+# defaults in the *Config classes would otherwise double the path (tests/tests)
+# when launched from within tests/.
+TESTS_DIR = HERE                       # the tests/ directory itself
+LOGS_DIR = HERE / "logs"               # tests/logs/
+COMPAREW2D_DIR = HERE / "compareWake2D"  # tests/compareWake2D/
+WAKE_DIR = HERE / "wake"               # tests/wake/
+
 # Local imports — siblings under tests/
 from run_tests_base import run_selected_unittests_with_log, TestConfig          # noqa: E402
 from run_tests_compareW2D import run_compareW2D_tests, CompareW2DConfig        # noqa: E402
@@ -123,12 +133,12 @@ def run_base_stage(verbosity: int) -> bool:
     print("STAGE 1/3 — BASE UNIT TESTS")
     print("=" * 80)
 
-    test_dir = Path(TestConfig.TEST_DIR)
+    test_dir = TESTS_DIR
     selected = _resolve_base_modules(test_dir, EXCLUDE_BASE_TESTS)
 
     return run_selected_unittests_with_log(
-        test_dir=TestConfig.TEST_DIR,
-        logdir=TestConfig.LOG_DIR,
+        test_dir=str(TESTS_DIR),
+        logdir=str(LOGS_DIR),
         logfile="run_all_base",
         pattern=TestConfig.PATTERN,
         verbosity=verbosity,
@@ -142,9 +152,9 @@ def run_compareW2D_stage(verbosity: int, compute_space_charge: bool) -> bool:
     print("STAGE 2/3 — COMPARE-WAKE2D DEEP TESTS")
     print("=" * 80)
 
-    subdirs = _resolve_deep_subdirs(CompareW2DConfig.BASE_DIR, EXCLUDE_DEEP_DIRS)
+    subdirs = _resolve_deep_subdirs(COMPAREW2D_DIR, EXCLUDE_DEEP_DIRS)
     return run_compareW2D_tests(
-        base_dir=CompareW2DConfig.BASE_DIR,
+        base_dir=COMPAREW2D_DIR,
         subdirs=subdirs,
         cfg_pattern=None,
         verbosity=verbosity,
@@ -158,11 +168,13 @@ def run_wake_stage(verbosity: int) -> bool:
     print("STAGE 3/3 — WAKE DEEP TESTS")
     print("=" * 80)
 
-    subdirs = _resolve_deep_subdirs(WakeTestConfig.WAKE_TEST_DIR, EXCLUDE_DEEP_DIRS)
+    subdirs = _resolve_deep_subdirs(WAKE_DIR, EXCLUDE_DEEP_DIRS)
+    # NOTE: run_wake_tests() has signature (base_dir, subdirs, verbosity);
+    # unlike run_compareW2D_tests() it does NOT take cfg_pattern, so it must
+    # not be passed here.
     return run_wake_tests(
-        base_dir=WakeTestConfig.WAKE_TEST_DIR,
+        base_dir=WAKE_DIR,
         subdirs=subdirs,
-        cfg_pattern=None,
         verbosity=verbosity,
     )
 
