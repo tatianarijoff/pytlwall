@@ -333,7 +333,8 @@ freqs = pytlwall.Frequencies(fmin=3, fmax=9, fstep=2)
 
 | Document | Description |
 |----------|-------------|
-| [EXAMPLES_README.md](doc/EXAMPLES_README.md) | Examples overview |
+| [examples/README.md](examples/README.md) | Configuration-file examples: index |
+| [EXAMPLES.md](doc/EXAMPLES.md) | Python API examples: overview |
 | [EXAMPLES_BEAM.md](doc/EXAMPLES_BEAM.md) | Beam examples |
 | [EXAMPLES_FREQUENCIES.md](doc/EXAMPLES_FREQUENCIES.md) | Frequencies examples |
 | [EXAMPLES_LAYER.md](doc/EXAMPLES_LAYER.md) | Layer examples |
@@ -341,6 +342,7 @@ freqs = pytlwall.Frequencies(fmin=3, fmax=9, fstep=2)
 | [EXAMPLES_TLWALL.md](doc/EXAMPLES_TLWALL.md) | TlWall examples |
 | [EXAMPLES_MULTIPLE.md](doc/EXAMPLES_MULTIPLE.md) | MultipleChamber examples |
 | [EXAMPLES_LOGGING.md](doc/EXAMPLES_LOGGING.md) | Logging examples |
+| [EXAMPLES_WAKE.md](doc/EXAMPLES_WAKE.md) | Wake examples |
 
 ### Time-Domain Wake
 
@@ -348,7 +350,7 @@ freqs = pytlwall.Frequencies(fmin=3, fmax=9, fstep=2)
 |----------|-------------|
 | [WAKE.md](doc/WAKE.md) | Time-domain wake module (`TLWallWake`) overview and usage |
 | [WAKE_THEORY.md](doc/WAKE_THEORY.md) | Physical model: transmission-line wake and thick/thin limits |
-| [test_tlwall_wake.md](doc/testing/test_tlwall_wake.md) | Wake module test suite |
+| [test_tlwall_wake.md](tests/doc/test_tlwall_wake.md) | Wake module test suite |
 
 ### Additional Documentation
 
@@ -453,7 +455,7 @@ pytest
 Expected result on a clean checkout:
 
 ```
-362 passed, 3 skipped
+362 passed, 3 skipped, 40 subtests passed
 ```
 
 The three skips are expected: `tests/test_cfgio_realistic.py` contains cases
@@ -493,9 +495,10 @@ MPLBACKEND=Agg pytest
 
 ### Test documentation
 
-Individual test modules are documented under `tests/doc/`, for example
-[test_cfg.md](tests/doc/test_cfg.md) and
-[test_tlwall_wake.md](doc/testing/test_tlwall_wake.md).
+Individual test modules are documented under `tests/doc/`, starting from
+[TESTING.md](tests/doc/TESTING.md) and [tests_README.md](tests/doc/tests_README.md);
+see for example [test_cfg.md](tests/doc/test_cfg.md) and
+[test_tlwall_wake.md](tests/doc/test_tlwall_wake.md).
 
 ---
 
@@ -520,7 +523,7 @@ Individual test modules are documented under `tests/doc/`, for example
 ### Getting Help
 
 1. Check the [API Reference](doc/API_REFERENCE.md)
-2. Review the [Examples](doc/EXAMPLES_README.md)
+2. Review the [Examples](examples/README.md)
 3. Contact the authors
 
 ---
