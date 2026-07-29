@@ -1003,7 +1003,211 @@ class CfgIo:
                 self.img_output[filename]['imped'].append(imped.strip())
             
             i += 1
-    
+
+    # =========================================================================
+    # Batch Orchestration (calc / print / plot)
+    # =========================================================================
+
+    def _resolve_output_path(self, filename: str) -> Path:
+        """
+        Resolve an output filename to a full path.
+
+        Absolute paths are used as-is. Relative paths are resolved against
+        ``main_path`` when the ``[path_info]`` section provides one, otherwise
+        against the current working directory. Parent directories are created.
+
+        Args:
+            filename: Output file name or path from the configuration.
+
+        Returns:
+            Resolved Path object whose parent directory exists.
+        """
+        out_path = Path(filename).expanduser()
+        if not out_path.is_absolute() and self.main_path is not None:
+            out_path = Path(self.main_path).expanduser() / out_path
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        return out_path
+
+    def _requested_impedances(self) -> List[str]:
+        """Collect every impedance name requested by output/file/img sections."""
+        names: List[str] = list(self.list_output)
+        for spec in self.file_output.values():
+            for name in spec.get('imped', []):
+                if name not in names:
+                    names.append(name)
+        for spec in self.img_output.values():
+            for name in spec.get('imped', []):
+                if name not in names:
+                    names.append(name)
+        return names
+
+    def calc_wall(self, cfg_file: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Build the TlWall object and evaluate every requested impedance.
+
+        This is the batch-mode driver used by ``python -m pytlwall -a cfg``.
+        It reads the configuration, instantiates :class:`TlWall`, and computes
+        all impedances listed in ``[output]`` plus any referenced by the
+        ``[outputN]`` / ``[img_outputN]`` sections.
+
+        Args:
+            cfg_file: Path to configuration file (optional if already loaded).
+
+        Returns:
+            Dictionary mapping impedance name to its complex array.
+
+        Raises:
+            ConfigurationError: If the configuration is incomplete.
+
+        Example:
+            >>> cfg = CfgIo('config.cfg')
+            >>> cfg.read_output()
+            >>> imped = cfg.calc_wall()
+            >>> cfg.print_wall()
+            >>> cfg.plot_wall()
+        """
+        if cfg_file is not None:
+            self.read_cfg(cfg_file)
+
+        # Make sure the output specification has been parsed.
+        if not (self.list_output or self.file_output or self.img_output):
+            self.read_output()
+
+        self.wall = self.read_pytlwall()
+        if self.wall is None:
+            raise ConfigurationError(
+                "Incomplete configuration: chamber, beam and frequency "
+                "sections are all required to build a TlWall object."
+            )
+
+        self.imped: Dict[str, Any] = {}
+        for name in self._requested_impedances():
+            try:
+                self.imped[name] = getattr(self.wall, name)
+            except AttributeError:
+                print(f"Warning: unknown impedance '{name}', skipped.")
+
+        # Legacy attribute names kept for backward compatibility.
+        self.mywall = self.wall
+        self.myimped = self.imped
+
+        return self.imped
+
+    def print_wall(self) -> List[Path]:
+        """
+        Write the computed impedances to the files declared in ``[outputN]``.
+
+        Requires :meth:`calc_wall` to have been called first.
+
+        Returns:
+            List of paths actually written.
+        """
+        from pytlwall.io_util import export_impedance
+
+        if not getattr(self, 'imped', None):
+            raise ConfigurationError("call calc_wall() before print_wall()")
+
+        written: List[Path] = []
+        for filename, spec in self.file_output.items():
+            prefix = spec.get('prefix', '')
+            imped_dict: Dict[str, Any] = {}
+            for name in spec.get('imped', []):
+                if name not in self.imped:
+                    continue
+                label = f"{prefix}_{name}" if prefix else name
+                imped_dict[label] = self.imped[name]
+
+            if not imped_dict:
+                print(f"Warning: nothing to write for '{filename}', skipped.")
+                continue
+
+            out_path = self._resolve_output_path(filename)
+            written.append(
+                export_impedance(
+                    freqs=self.wall.freq,
+                    imped_dict=imped_dict,
+                    output_path=out_path,
+                    save_csv_fallback=True,
+                )
+            )
+            print(f"Written {out_path}")
+
+        return written
+
+    def plot_wall(self, show: bool = False) -> List[Path]:
+        """
+        Produce the plots declared in the ``[img_outputN]`` sections.
+
+        Requires :meth:`calc_wall` to have been called first. The
+        ``re_im_flag`` option selects whether the real part, the imaginary
+        part, or both are drawn.
+
+        Args:
+            show: If True, display the figures interactively.
+
+        Returns:
+            List of image paths written.
+        """
+        import matplotlib.pyplot as plt
+        from pytlwall.plot_util import plot_list_Z_vs_f
+
+        if not getattr(self, 'imped', None):
+            raise ConfigurationError("call calc_wall() before plot_wall()")
+
+        written: List[Path] = []
+        for filename, spec in self.img_output.items():
+            prefix = spec.get('prefix', '')
+            real_imag = spec.get('real_imag', 'both')
+
+            list_Z: List[Any] = []
+            list_label: List[str] = []
+            for name in spec.get('imped', []):
+                if name not in self.imped:
+                    continue
+                Z = self.imped[name]
+                base = f"{prefix}_{name}" if prefix else name
+                if real_imag in ('real', 'both'):
+                    list_Z.append(Z.real)
+                    list_label.append(f"Re({base})")
+                if real_imag in ('imag', 'both'):
+                    list_Z.append(Z.imag)
+                    list_label.append(f"Im({base})")
+
+            if not list_Z:
+                print(f"Warning: nothing to plot for '{filename}', skipped.")
+                continue
+
+            # Pick the unit family from the first requested impedance.
+            first = spec['imped'][0]
+            if 'Surf' in first:
+                imped_type = 'S'
+            elif 'Long' in first:
+                imped_type = 'L'
+            else:
+                imped_type = 'T'
+
+            out_path = self._resolve_output_path(filename)
+            fig = plot_list_Z_vs_f(
+                self.wall.freq,
+                list_Z,
+                list_label,
+                imped_type=imped_type,
+                title=spec.get('title'),
+                savedir=str(out_path.parent),
+                savename=out_path.name,
+                xscale=spec.get('xscale', 'lin'),
+                yscale=spec.get('yscale', 'lin'),
+            )
+            written.append(out_path)
+            print(f"Written {out_path}")
+
+            if show:
+                plt.show()
+            elif fig is not None:
+                plt.close(fig)
+
+        return written
+
     def save_calc(self, list_calc: Dict[str, bool]) -> None:
         """
         Save calculation configuration.

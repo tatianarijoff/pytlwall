@@ -49,7 +49,7 @@ This is the **recommended installation** for most users.
 ### From source
 
 ```bash
-git clone https://github.com/CERN/pytlwall.git
+git clone https://github.com/tatianarijoff/pytlwall.git
 cd pytlwall
 pip install .
 ```
@@ -126,7 +126,7 @@ pytlwall-gui
 For developers and contributors:
 
 ```bash
-git clone https://github.com/CERN/pytlwall.git
+git clone https://github.com/tatianarijoff/pytlwall.git
 cd pytlwall
 pip install -e ".[dev]"
 ```
