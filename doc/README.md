@@ -57,7 +57,7 @@ Author: **Carlo Zannini**
 
 ```bash
 # Clone repository
-git clone https://github.com/CERN/pytlwall.git
+git clone https://github.com/tatianarijoff/pytlwall.git
 cd pytlwall
 
 # Install package

@@ -46,11 +46,11 @@ setup(
     maintainer_email="tatiana.rijoff@gmail.com",
     
     # URLs
-    url="https://github.com/CERN/pytlwall",
+    url="https://github.com/tatianarijoff/pytlwall",
     project_urls={
-        "Bug Reports": "https://github.com/CERN/pytlwall/issues",
-        "Source": "https://github.com/CERN/pytlwall",
-        "Documentation": "https://github.com/CERN/pytlwall/blob/main/README.md",
+        "Bug Reports": "https://github.com/tatianarijoff/pytlwall/issues",
+        "Source": "https://github.com/tatianarijoff/pytlwall",
+        "Documentation": "https://github.com/tatianarijoff/pytlwall/blob/main/README.md",
     },
     
     # License

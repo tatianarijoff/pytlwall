@@ -55,14 +55,28 @@ Author: **Carlo Zannini**
 
 ### Standard Installation
 
+> **Repository and package name**
+> Repository, working directory and importable package all share the same
+> name, `pytlwall`. The repository was previously called `TLWallNew`; old
+> links still redirect, but the current name is `pytlwall`.
+> Do not confuse it with `pytlwall-v1`, which holds the superseded v1
+> codebase and is kept for reference only.
+
 ```bash
-# Clone repository
-git clone https://github.com/CERN/pytlwall.git
+# Clone the repository
+git clone https://github.com/tatianarijoff/pytlwall.git
 cd pytlwall
 
 # Install package
 pip install .
 ```
+
+### Sources
+
+| Source | URL | Status |
+|--------|-----|--------|
+| **pytlwall** (current) | https://github.com/tatianarijoff/pytlwall | Active development |
+| pytlwall-v1 (legacy) | https://github.com/tatianarijoff/pytlwall-v1 | Superseded, reference only |
 
 ### Development Installation
 
@@ -73,6 +87,31 @@ pip install -e .
 # Install with all dependencies
 pip install -e ".[dev,gui]"
 ```
+
+### Virtual Environment (recommended)
+
+On Debian, Ubuntu and other distributions that ship an externally managed
+Python, `pip install` against the system interpreter is refused with
+`error: externally-managed-environment` (PEP 668). Install into a virtual
+environment instead:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+```
+
+The shell prompt is prefixed with `(.venv)` while the environment is active.
+Reactivate it in every new terminal with `source .venv/bin/activate`, and
+leave it with `deactivate`.
+
+If `python3 -m venv` fails, install the system package first:
+`sudo apt install python3-venv`.
+
+Note that Debian and Ubuntu provide `python3` only: a bare `python` command
+does not exist outside an activated virtual environment.
+
+On Windows the activation command is `.venv\Scripts\activate`.
 
 ### Conda Environment
 
@@ -171,12 +210,42 @@ mc.plot_totals(show=False)
 ### Command Line Interface
 
 ```bash
-# Run with configuration file
+# Batch mode: run a full calculation from a configuration file
+python -m pytlwall -a config.cfg
+
+# Equivalent short form (a bare .cfg is treated as batch mode)
 python -m pytlwall config.cfg
+
+# Interactive text interface
+python -m pytlwall -i
 
 # Launch GUI
 python -m pytlwall --gui
+
+# Version
+python -m pytlwall --version
 ```
+
+After `pip install .` the same commands are available through the
+`pytlwall` console script, e.g. `pytlwall -a config.cfg`.
+
+> **Batch mode requires output sections.**
+> `-a` executes the full pipeline: build the chamber/beam/frequency objects,
+> compute the impedances, write the data files, produce the plots. The
+> impedances to compute are taken from the `[output]` section, the data files
+> from `[output1]`, `[output2]`, … and the images from `[img_output1]`,
+> `[img_output2]`, …
+> A configuration file containing only `[base_info]`, `[layers_info]`,
+> `[boundary]`, `[frequency_info]` and `[beam_info]` is a valid *model*
+> definition but produces no output in batch mode; the run exits with a
+> warning. Most files under `examples/` are of this kind and are meant to be
+> loaded from Python or from the GUI.
+> `examples/ex_run_exec/ex_lowbeta.cfg` is the reference example of a
+> complete, directly runnable configuration.
+
+Relative output paths in the configuration are interpreted with respect to
+the current working directory, unless a `[path_info]` section defines
+`main_path`, in which case they are resolved against it.
 
 ### Launch GUI Directly
 
@@ -321,14 +390,112 @@ RQ = 0
 type = PEC
 
 [frequency_info]
-fmin = 1e3
-fmax = 1e9
-fstep = 10
+; fmin/fmax are DECIMAL EXPONENTS (10^fmin .. 10^fmax), not frequencies in Hz.
+; fstep is the number of points per decade exponent.
+fmin = 3
+fmax = 9
+fstep = 2
 
 [beam_info]
 gammarel = 7460.52
 test_beam_shift = 0.001
+
+; --- the sections below are what makes the file runnable with -a ---
+
+[output]
+; which impedances to compute; anything absent or False is skipped
+ZLong = True
+ZTrans = True
+ZLongSurf = True
+
+[output1]
+; allowed extensions: .txt, .csv, .dat, .xlsx
+output_name = out/arc_chamber.xlsx
+; prepend component_name to each column label
+use_name_flag = True
+output_list = ZLong, ZTrans, ZLongSurf
+re_im_flag = both
+
+[img_output1]
+img_name = out/arc_chamber_long.png
+use_name_flag = False
+imped_list = ZLong
+re_im_flag = both
+title = Longitudinal impedance
+; lin | log | symlog
+xscale = log
+yscale = lin
 ```
+
+Minimal end-to-end check:
+
+```bash
+python -m pytlwall -a examples/ex_run_exec/ex_lowbeta.cfg
+```
+
+This writes `low_beta.xlsx`, `low_beta_long.txt` and `low_beta_long.png`
+into `examples/ex_run_exec/`.
+
+---
+
+## Testing
+
+The test suite lives in `tests/` and is run with pytest.
+
+```bash
+# Install the test dependencies (pytest, pytest-cov)
+pip install -e ".[test]"
+
+# Run the whole suite
+pytest
+```
+
+Expected result on a clean checkout:
+
+```
+362 passed, 3 skipped
+```
+
+The three skips are expected: `tests/test_cfgio_realistic.py` contains cases
+that require the fixture files `test_round.cfg` and `test_rect.cfg`, which are
+not distributed with the repository. Anything other than a skip is a genuine
+failure.
+
+Coverage is enabled by default through `[tool.pytest.ini_options]` in
+`pyproject.toml`: a summary is printed to the terminal and a browsable HTML
+report is written to `htmlcov/index.html`. Both `.coverage` and `htmlcov/`
+are excluded from version control.
+
+### Running a subset
+
+```bash
+# One file
+pytest tests/test_tlwall.py
+
+# One test
+pytest tests/test_tlwall.py::TestTlWall::test_calc_ZLong
+
+# Verbose, stop at the first failure
+pytest -v -x
+
+# Skip the coverage report (faster)
+pytest --no-cov
+```
+
+### Headless machines
+
+`tests/test_plot.py` builds Matplotlib figures. On a machine without a
+display, force a non-interactive backend:
+
+```bash
+MPLBACKEND=Agg pytest
+```
+
+### Test documentation
+
+Individual test modules are documented under `tests/doc/`, for example
+[test_cfg.md](tests/doc/test_cfg.md) and
+[test_tlwall_wake.md](doc/testing/test_tlwall_wake.md).
 
 ---
 
@@ -338,10 +505,16 @@ test_beam_shift = 0.001
 
 | Issue | Solution |
 |-------|----------|
+| `error: externally-managed-environment` | System Python is protected (PEP 668); create a virtual environment: `python3 -m venv .venv && source .venv/bin/activate` |
+| `python: command not found` | On Debian/Ubuntu use `python3`, or activate a virtual environment |
 | Import error | Ensure pytlwall is installed: `pip install -e .` |
+| `No module named pytlwall` after cloning | Run `pip install -e .` from inside the cloned `pytlwall` directory |
 | GUI not launching | Install PyQt5: `pip install pyqt5` |
 | Plot not showing | Install Matplotlib: `pip install matplotlib` |
-| Excel export fails | Install openpyxl: `pip install openpyxl` |
+| Batch run prints only the help text | The first argument must be `-a`, `-i`, `--gui` or a `.cfg` path |
+| Batch run produces no files | The `.cfg` has no `[output]` / `[outputN]` / `[img_outputN]` sections |
+| Excel export fails | Install openpyxl and pandas: `pip install openpyxl pandas` |
+| Output written to an unexpected directory | Relative paths follow the working directory unless `[path_info] main_path` is set |
 | Config file error | Check INI format and section names |
 
 ### Getting Help
