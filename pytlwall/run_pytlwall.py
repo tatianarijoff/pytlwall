@@ -22,8 +22,22 @@ import pytlwall.shell_interface as shell
 
 def _run_batch(cfg_filename: str) -> int:
     """Run a full computation from a configurator file."""
+    import os
+
+    if not os.path.isfile(cfg_filename):
+        print(f"Error: configuration file '{cfg_filename}' not found.")
+        return 2
+
     cfg = pytlwall.CfgIo(cfg_filename)
     cfg.read_output()
+
+    if not (cfg.list_output or cfg.file_output or cfg.img_output):
+        print(
+            f"Warning: '{cfg_filename}' has no [output], [outputN] or "
+            "[img_outputN] section: nothing to compute or save."
+        )
+        return 0
+
     cfg.calc_wall()
     cfg.print_wall()
     cfg.plot_wall()
@@ -150,6 +164,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         # Keep legacy option for compatibility, but point users to the new entry.
         print("GUI mode: use 'python -m pytlwall --gui'")
         return 0
+
+    # Convenience: a bare configuration file is treated as batch mode, so that
+    #     python -m pytlwall config.cfg
+    # behaves like
+    #     python -m pytlwall -a config.cfg
+    if not param.startswith("-"):
+        return _run_batch(param)
 
     shell.help_pytlwall()
     return 2

@@ -276,11 +276,16 @@ ZLong = wall.calc_ZLong()
 
 Calculate impedances based on configuration.
 
+**Returns:** dict mapping impedance name to its complex array.
+
 **Side Effects:**
-- Sets `self.mywall` and `self.myimped`
+- Sets `self.wall` (the `TlWall` object) and `self.imped` (the results dict).
+- Legacy aliases `self.mywall` / `self.myimped` are also set.
 
 **Note:**
-- Requires `read_output()` called first
+- Calls `read_output()` automatically if no output specification has been read yet.
+- Computes every impedance listed in `[output]` plus any referenced by
+  `[outputN]` / `[img_outputN]`.
 
 **Example:**
 ```python
@@ -295,7 +300,8 @@ Write calculated impedances to files.
 
 **Note:**
 - Requires `calc_wall()` called first
-- Output format based on file extension (.xlsx or .csv)
+- Output format based on file extension (`.txt`, `.csv`, `.dat`, `.xlsx`)
+- Returns the list of paths written
 
 **Example:**
 ```python
@@ -309,7 +315,9 @@ Generate plots of calculated impedances.
 
 **Note:**
 - Requires `calc_wall()` called first
-- Uses `pytlwall.plot_util`
+- Uses `pytlwall.plot_util.plot_list_Z_vs_f`
+- Honours `re_im_flag`, `title`, `xscale`, `yscale` from each `[img_outputN]`
+- Accepts `show=False` (default) to save without opening a window
 
 **Example:**
 ```python
